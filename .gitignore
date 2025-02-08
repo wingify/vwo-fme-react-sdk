@@ -1,0 +1,14 @@
+.DS_STORE
+node_modules
+*.log
+.idea
+*.vscode
+*.rdb
+# *.todo
+coverage/
+
+dist/node_modules
+dist/package.json
+demo/
+example/
+docs-html/

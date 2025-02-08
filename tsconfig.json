@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "noEmit": false,
+    "moduleResolution": "node",
+    "baseUrl": "./lib",
+    "paths": {
+      "*": ["node_modules", "lib"]
+    },
+    "outDir": "dist",
+    // "emitDeclarationOnly": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "target": "ESNext",
+    "jsx": "react",
+    "declaration": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "lib": ["dom", "esnext"],
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin"
+      }
+    ]
+  },
+  "include": ["lib"],
+  "exclude": ["node_modules", "**/*.(spec|test).ts", "*.js"],
+  "baseUrl": "types",
+  "typeRoots": ["types", "./node_modules/@types"]
+}
