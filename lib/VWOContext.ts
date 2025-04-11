@@ -16,18 +16,19 @@
 
 import { createContext, useContext } from 'react';
 import { getLogger } from './services/LoggerService';
-/**
- * Context for VWO SDK
- */
-export const VWOContext = createContext<any>({
+
+interface VWOContextType {
+  vwoClient: any;
+  userContext?: any;
+  setUserContext?: (context: any) => void;
+}
+
+export const VWOContext = createContext<VWOContextType>({
   vwoClient: null,
-  userContext: {},
+  userContext: null,
+  setUserContext: undefined, // Default is undefined
 });
 
-/**
- * Hook to use the VWO context
- * @returns VWO context
- */
 export const useVWOContext = () => {
   const logger = getLogger();
   try {

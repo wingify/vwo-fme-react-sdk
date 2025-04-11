@@ -47,12 +47,55 @@ const userContext = {
 };
 
 const App = () => (
-  <VWOProvider config={vwoConfig} context={userContext}>
+  <VWOProvider config={vwoConfig} userContext={userContext}>
     <YourComponent />
   </VWOProvider>
 );
 
 export default App;
+```
+
+Inside your component, use feature flagging and experimentation
+
+```javascript
+// Import hooks
+import { useGetFlag, useGetFlagVariable } from 'vwo-fme-react-sdk';
+
+const YourComponent = () => {
+  // Retrieve the flag using the feature key
+  const { flag, isReady } = useGetFlag('feature_key');
+
+  // Or, pass userContext, if not provided at the time of using VWOProvider or you want to use updated user context
+  // const { flag, isReady } = useGetFlag('feature_key', userContext);
+
+  if (!isReady()) {
+    return <div>Default/Zero state</div>;
+  }
+  // Check if the flag is enabled
+  const isEnabled = flag?.isEnabled();
+  if (isEnabled) {
+    // Use the flag object returned by useGetFlag to retrieve a specific variable
+    // Replace 'variableKey' with the actual key for the variable you want to retrieve
+    const variableKey = 'variable_name'; // Replace with actual variable key
+    const variableValue = useGetFlagVariable(flag, variableKey, 'default_value');
+
+    // Display the feature flag variable value
+    return (
+      <div>
+        <p>Feature Flag Variable Value: {variableValue}</p>
+      </div>
+    );
+  }
+
+  // Display a message if the feature is not enabled
+  return (
+    <div>
+      <p>Feature is not enabled!</p>
+    </div>
+  );
+};
+
+export default YourComponent;
 ```
 
 ## Advanced Configuration Options
@@ -102,9 +145,10 @@ Feature Flags serve as the foundation for all testing, personalization, and roll
 To implement a feature flag, first use the `useGetFlag` hook to retrieve the flag configuration.
 The `useGetFlag` hook provides a simple way to check if a feature is enabled for a specific user and access its variables. It returns a feature flag object that contains methods for checking the feature's status and retrieving any associated variables.
 
-| Parameter    | Description                           | Required | Type   | Example          |
-| ------------ | ------------------------------------- | -------- | ------ | ---------------- |
-| `featureKey` | Unique identifier of the feature flag | Yes      | String | `'new_checkout'` |
+| Parameter    | Description                                                    | Required | Type   | Example                   |
+| ------------ | -------------------------------------------------------------- | -------- | ------ | ------------------------- |
+| `featureKey` | Unique identifier of the feature flag                          | Yes      | String | `'new_checkout'`          |
+| `context`    | User Context to be passed, if not at the time of `VWOProvider` | No       | Object | `{ id: 'unique_user_id'}` |
 
 Example usage:
 
@@ -114,8 +158,14 @@ import { useGetFlag, useGetFlagVariable } from 'vwo-fme-react-sdk'; // Import ho
 
 const YourComponent = () => {
   // Retrieve the flag using the feature key
-  const flag = useGetFlag('feature_key');
+  const { flag, isReady } = useGetFlag('feature_key');
 
+  // Or, pass userContext, if not provided at the time of using VWOProvider or you want to use updated user context
+  // const { flag, isReady } = useGetFlag('feature_key', userContext);
+
+  if (!isReady()) {
+    return <div>Default/Zero state</div>;
+  }
   // Check if the flag is enabled
   const isEnabled = flag?.isEnabled();
   if (isEnabled) {
@@ -202,7 +252,7 @@ const vwoConfig = {
 };
 
 const App = () => (
-  <VWOProvider config={vwoConfig} context={{ id: 'unique_user_id' }}>
+  <VWOProvider config={vwoConfig} userContext={{ id: 'unique_user_id' }}>
     <YourComponent />
   </VWOProvider>
 );
@@ -260,7 +310,7 @@ const vwoConfig = {
 };
 
 const App = () => (
-  <VWOProvider config={vwoConfig} context={{ id: 'unique_user_id' }}>
+  <VWOProvider config={vwoConfig} userContext={{ id: 'unique_user_id' }}>
     <YourComponent />
   </VWOProvider>
 );
@@ -290,7 +340,7 @@ const options = {
 };
 
 const App = () => (
-  <VWOProvider config={vwoConfig} context={{ id: 'unique_user_id' }}>
+  <VWOProvider config={vwoConfig} userContext={{ id: 'unique_user_id' }}>
     <YourComponent />
   </VWOProvider>
 );
@@ -311,7 +361,7 @@ const options = {
 };
 
 const App = () => (
-  <VWOProvider config={vwoConfig} context={{ id: 'unique_user_id' }}>
+  <VWOProvider config={vwoConfig} userContext={{ id: 'unique_user_id' }}>
     <YourComponent />
   </VWOProvider>
 );

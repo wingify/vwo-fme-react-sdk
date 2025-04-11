@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ReactNode } from 'react';
-/**
- * Props for VWOProvider
- */
+import React, { ReactNode } from 'react';
 interface VWOProviderProps {
   client?: any;
   config?: any;
-  context: any;
+  userContext?: any;
   children: ReactNode;
 }
 /**
- * VWOProvider component to provide the VWO SDK instance and context to the app
- * @param client - VWO SDK instance
- * @param config - VWO SDK config (initialization config)
- * @param context - VWO SDK context (userContext)
- * @param children - React children (ReactNode)
- * @returns VWOProvider component
+ * VWOProvider component to provide VWO client and configuration context to child components.
+ *
+ * @param {Object} props - The properties for the VWOProvider component.
+ * @param {Object} props.client - The VWO client instance.
+ * @param {Object} props.config - Configuration settings for the VWO client.
+ * @param {Object} props.userContext - Initial user context for the VWO client.
+ * @param {React.ReactNode} props.children - Child components that will have access to the VWO context.
+ * @returns {JSX.Element} The provider component wrapping its children with VWO context.
  */
-export declare const VWOProvider: ({ client, config, context, children }: VWOProviderProps) => any;
+export declare const VWOProvider: React.FC<VWOProviderProps>;
 export {};

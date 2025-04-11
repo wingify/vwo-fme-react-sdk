@@ -24,6 +24,7 @@ export { useGetFlagVariable } from './useGetFlagVariable';
 export { useGetFlagVariables } from './useGetFlagVariable';
 export { useTrackEvent } from './useTrackEvent';
 export { useSetAttribute } from './useSetAttribute';
+export { useVWOContext } from './VWOContext';
 
 // Export init method from vwo-fme-node-sdk
 export { init } from 'vwo-fme-node-sdk';

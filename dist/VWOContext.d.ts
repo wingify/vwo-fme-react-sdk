@@ -13,12 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Context for VWO SDK
- */
 export declare const VWOContext: any;
-/**
- * Hook to use the VWO context
- * @returns VWO context
- */
 export declare const useVWOContext: () => any;

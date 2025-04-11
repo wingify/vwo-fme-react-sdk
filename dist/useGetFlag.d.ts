@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 /**
- * Hook to get a feature flag value
- * @param featureKey - The key of the feature flag to get
- * @returns The feature flag value
+ * Custom hook to retrieve a feature flag using VWO client.
+ *
+ * @param {string} featureKey - The key of the feature flag to retrieve.
+ * @param {Object} [context] - Optional user context to use for fetching the flag.
+ * @returns {Object} An object containing the flag and a readiness status.
  */
-export declare const useGetFlag: (featureKey: string) => any;
+export declare const useGetFlag: (
+  featureKey: string,
+  context?: any,
+) => {
+  flag: any;
+  isReady: () => boolean;
+};

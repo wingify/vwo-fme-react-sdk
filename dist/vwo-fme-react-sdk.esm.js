@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useRef, useEffect, useMemo } from 'react';
+import React, { useContext, createContext, useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { init } from 'vwo-fme-node-sdk';
 export { init } from 'vwo-fme-node-sdk';
 
@@ -517,17 +517,11 @@ function getLogger() {
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Context for VWO SDK
- */
 const VWOContext = /*#__PURE__*/createContext({
   vwoClient: null,
-  userContext: {}
+  userContext: null,
+  setUserContext: undefined
 });
-/**
- * Hook to use the VWO context
- * @returns VWO context
- */
 const useVWOContext = () => {
   const logger = getLogger();
   try {
@@ -561,69 +555,69 @@ const useVWOContext = () => {
  * limitations under the License.
  */
 /**
- * VWOProvider component to provide the VWO SDK instance and context to the app
- * @param client - VWO SDK instance
- * @param config - VWO SDK config (initialization config)
- * @param context - VWO SDK context (userContext)
- * @param children - React children (ReactNode)
- * @returns VWOProvider component
+ * VWOProvider component to provide VWO client and configuration context to child components.
+ *
+ * @param {Object} props - The properties for the VWOProvider component.
+ * @param {Object} props.client - The VWO client instance.
+ * @param {Object} props.config - Configuration settings for the VWO client.
+ * @param {Object} props.userContext - Initial user context for the VWO client.
+ * @param {React.ReactNode} props.children - Child components that will have access to the VWO context.
+ * @returns {JSX.Element} The provider component wrapping its children with VWO context.
  */
 const VWOProvider = ({
   client,
   config,
-  context,
+  userContext,
   children
 }) => {
   const [vwoClient, setVwoClient] = useState(client || null);
-  const vwoClientRef = useRef(vwoClient);
-  const isMounted = useRef(true);
+  const [context, setContext] = useState(userContext || null);
+  const vwoClientRef = useRef(vwoClient); // Store the client reference without triggering re-renders
+  const isMounted = useRef(true); // Prevent updates after unmount
+  const logger = getLogger();
   // Initialize logger globally before using it
   useEffect(() => {
-    if (config?.logger) {
+    if (config != null && config.logger) {
       initLogger(config);
     }
   }, [config]);
-  const logger = getLogger();
-  // Initialize the VWO SDK instance when the component mounts
+  // Initialize the VWO SDK instance only once when the component mounts or if config is updated
   useEffect(() => {
+    // If neither vwoClient nor config is provided, log the error
     if (!vwoClient && !config) {
       logger.error("VWOProvider Error: Either `client` or `config` must be provided.");
       return;
     }
-    if (!context || !isObject(context)) {
-      logger.error("VWOProvider Error: `context` is required and must be a valid object.");
-      return;
-    }
-    isMounted.current = true;
-    async function initializeVWO() {
-      if (!vwoClient && config) {
-        try {
-          // Initialize the VWO SDK instance
+    const initializeVWO = async () => {
+      try {
+        if (!vwoClient && config) {
+          // Initialize the VWO SDK instance if vwoClient is not already initialized
           const instance = await init(config);
           if (isMounted.current) {
-            // Update the VWO SDK instance
             setVwoClient(instance);
-            // Update the ref with the new instance
             vwoClientRef.current = instance;
           }
-        } catch (error) {
-          logger.error("VWO-SDK Initialization failed:");
         }
+      } catch (error) {
+        logger.error(`VWO-SDK Initialization failed: ${error}`);
       }
+    };
+    // Only initialize once
+    if (!vwoClient && config) {
+      initializeVWO();
     }
-    // Initialize the VWO SDK instance
-    initializeVWO();
-    // Cleanup the VWO SDK instance when the component unmounts
     return () => {
       isMounted.current = false;
-      if (vwoClientRef.current?.destroy) vwoClientRef.current.destroy();
+      if (vwoClientRef.current && vwoClientRef.current.destroy) {
+        vwoClientRef.current.destroy();
+      }
     };
-  }, [vwoClient, config]);
-  // Provide the VWO SDK instance and context to the app
+  }, [config, vwoClient]); // Re-run only when config or vwoClient changes
   return React.createElement(VWOContext.Provider, {
     value: {
       vwoClient,
-      userContext: context
+      userContext: context,
+      setUserContext: setContext
     }
   }, children);
 };
@@ -680,59 +674,79 @@ const useVWOClient = () => {
  * limitations under the License.
  */
 /**
- * Hook to get a feature flag value
- * @param featureKey - The key of the feature flag to get
- * @returns The feature flag value
+ * Custom hook to retrieve a feature flag using VWO client.
+ *
+ * @param {string} featureKey - The key of the feature flag to retrieve.
+ * @param {Object} [context] - Optional user context to use for fetching the flag.
+ * @returns {Object} An object containing the flag and a readiness status.
  */
-const useGetFlag = featureKey => {
-  // This is the return schema for the flag if the feature key is not found or the flag is not enabled
+const useGetFlag = (featureKey, context) => {
+  // Define the error return schema for the hook
   const errorReturnSchema = {
-    isEnabled: () => false,
-    getVariables: () => [],
-    getVariable: (_key, defaultValue) => defaultValue
+    flag: {
+      isEnabled: () => false,
+      getVariables: () => [],
+      getVariable: (_key, defaultValue) => defaultValue
+    },
+    isReady: () => false
   };
+  // Destructure vwoClient, setUserContext, and userContext from VWOContext
+  const {
+    vwoClient,
+    setUserContext,
+    userContext
+  } = useVWOContext();
+  // State to store the flag and loading status
+  const [flag, setFlag] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  // Get the logger instance
   const logger = getLogger();
-  try {
+  // Memoize the user context to prevent unnecessary re-renders
+  const stableUserContext = useMemo(() => {
+    return context || userContext || {};
+  }, [JSON.stringify(userContext)]); // Only recreate if userContext actually changes
+  // Define the getFlag function to fetch the feature flag
+  const getFlag = useCallback(async () => {
+    // Check if featureKey is provided
     if (!featureKey) {
       logger.error('Feature key is required for useGetFlag hook');
       return errorReturnSchema;
     }
-    const [flag, setFlag] = useState(null);
-    const {
-      vwoClient,
-      userContext
-    } = useVWOContext();
-    if (!vwoClient) {
-      logger.error('VWO Client is missing in useGetFlag hook. Ensure VWOProvider is correctly initialized.');
+    // Check if the user context is a valid object
+    if (!isObject(stableUserContext)) {
+      logger.error('Invalid user context in useGetFlag hook');
       return errorReturnSchema;
     }
-    if (!userContext || !isObject(userContext)) {
-      logger.error('Invalid user context in useGetFlag hook. Ensure a valid userContext is provided.');
-      return errorReturnSchema;
+    // Try to fetch the feature flag and handle errors
+    try {
+      setIsLoading(true);
+      const result = await vwoClient.getFlag(featureKey, stableUserContext);
+      setFlag(result);
+      // Set the user context in the context to ensure it's available for other hooks
+      setUserContext(stableUserContext);
+    } catch (error) {
+      logger.error(`Error fetching feature flag "${featureKey}": ${error}`);
+      setFlag(null);
+    } finally {
+      setIsLoading(false);
     }
-    // Memoize the userContext to avoid unnecessary re-fetching
-    const stableUserContext = useMemo(() => userContext, [userContext]);
-    // Memoize the getFlag function to avoid re-creation
-    const getFlag = useMemo(() => {
-      return async () => {
-        try {
-          const result = await vwoClient.getFlag(featureKey, stableUserContext);
-          setFlag(result);
-        } catch (error) {
-          logger.error(`Error fetching feature flag "${featureKey}": ${error}`);
-          setFlag({});
-        }
-      };
-    }, [featureKey, vwoClient, stableUserContext]);
-    // Runs only when `getFlag` reference changes
-    useEffect(() => {
-      getFlag();
-    }, [getFlag]);
-    return flag;
-  } catch (error) {
-    logger.error(`Error getting feature flag: ${error}`);
+  }, [featureKey, stableUserContext, vwoClient]);
+  // Ensure vwoClient is ready
+  if (!vwoClient) {
+    logger.error('VWO Client is missing in useGetFlag hook. Ensure VWOProvider is correctly initialized.');
     return errorReturnSchema;
   }
+  // Run effect when dependencies change to fetch the flag
+  useEffect(() => {
+    if (featureKey && vwoClient && stableUserContext) {
+      getFlag();
+    }
+  }, [featureKey, stableUserContext, vwoClient]);
+  // Return the flag and readiness status
+  return {
+    flag,
+    isReady: () => !isLoading && !!flag
+  };
 };
 
 /**
@@ -871,6 +885,10 @@ const useSetAttribute = attributeMap => {
       vwoClient,
       userContext
     } = useVWOContext();
+    if (!vwoClient) {
+      logger.error('VWO Client is missing in useSetAttribute hook. Ensure VWOProvider is correctly initialized.');
+      return {};
+    }
     if (!userContext || !isObject(userContext)) {
       logger.error('Invalid user context in useSetAttribute hook. Ensure a valid userContext is provided.');
       return {};
@@ -882,5 +900,5 @@ const useSetAttribute = attributeMap => {
   }
 };
 
-export { VWOProvider, useGetFlag, useGetFlagVariable, useGetFlagVariables, useSetAttribute, useTrackEvent, useVWOClient };
+export { VWOProvider, useGetFlag, useGetFlagVariable, useGetFlagVariables, useSetAttribute, useTrackEvent, useVWOClient, useVWOContext };
 //# sourceMappingURL=vwo-fme-react-sdk.esm.js.map

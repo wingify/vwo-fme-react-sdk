@@ -35,6 +35,11 @@ export const useSetAttribute = (attributeMap: Record<string, string>) => {
     // Fetch the vwoClient and userContext from the context
     const { vwoClient, userContext } = useVWOContext();
 
+    if (!vwoClient) {
+      logger.error('VWO Client is missing in useSetAttribute hook. Ensure VWOProvider is correctly initialized.');
+      return {};
+    }
+
     if (!userContext || !isObject(userContext)) {
       logger.error('Invalid user context in useSetAttribute hook. Ensure a valid userContext is provided.');
       return {};
