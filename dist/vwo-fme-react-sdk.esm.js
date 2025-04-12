@@ -704,7 +704,7 @@ const useGetFlag = (featureKey, context) => {
   // Memoize the user context to prevent unnecessary re-renders
   const stableUserContext = useMemo(() => {
     return context || userContext || {};
-  }, [JSON.stringify(userContext)]); // Only recreate if userContext actually changes
+  }, [JSON.stringify(context || userContext || {})]); // Only recreate if userContext actually changes
   // Define the getFlag function to fetch the feature flag
   const getFlag = useCallback(async () => {
     // Check if featureKey is provided
