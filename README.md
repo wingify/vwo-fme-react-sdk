@@ -24,13 +24,15 @@ npm install vwo-fme-react-sdk --save
 yarn add vwo-fme-react-sdk
 ```
 
-## Basic Usage Example
+## Getting Started with VWOProvider
 
-```javascript
+### Basic Implementation
+
+```tsx
 import React from 'react';
-import { VWOProvider } from 'vwo-fme-react-sdk';
+import { VWOProvider, IVWOOptions, IVWOContextModel } from 'vwo-fme-react-sdk';
 
-const vwoConfig = {
+const vwoConfig: IVWOOptions = {
   sdkKey: '32-alpha-numeric-sdk-key', // Your VWO SDK Key
   accountId: '123456', // Your VWO Account ID
   logger: {
@@ -38,7 +40,7 @@ const vwoConfig = {
   },
 };
 
-const userContext = {
+const userContext: IVWOContextModel = {
   id: 'unique_user_id', // Required: Unique identifier for the user
   customVariables: { age: 25, location: 'US' }, // Optional
   userAgent:
@@ -46,8 +48,12 @@ const userContext = {
   ipAddress: '1.1.1.1', // Optional
 };
 
+// Optional: Provide a fallback UI component that will be displayed while VWOProvider initializes.
+// This is useful for showing a loading state or placeholder content during SDK initialization.
+const fallbackComponent = <div>Initializing VWO...</div>;
+
 const App = () => (
-  <VWOProvider config={vwoConfig} userContext={userContext}>
+  <VWOProvider config={vwoConfig} userContext={userContext} fallbackComponent={fallbackComponent}>
     <YourComponent />
   </VWOProvider>
 );
@@ -55,52 +61,90 @@ const App = () => (
 export default App;
 ```
 
-Inside your component, use feature flagging and experimentation
+### Using Pre-initialized VWO Client
 
-```javascript
-// Import hooks
-import { useGetFlag, useGetFlagVariable } from 'vwo-fme-react-sdk';
+If you have already initialized a VWO client in your application, you can pass it directly to the VWOProvider:
 
-const YourComponent = () => {
-  // Retrieve the flag using the feature key
-  const { flag, isReady } = useGetFlag('feature_key');
+```typescript
+import React, { useEffect, useState } from 'react';
+import { VWOProvider, IVWOOptions, IVWOClient, IVWOContextModel, init } from 'vwo-fme-react-sdk';
 
-  // Or, pass userContext, if not provided at the time of using VWOProvider or you want to use updated user context
-  // const { flag, isReady } = useGetFlag('feature_key', userContext);
+const vwoConfig: IVWOOptions = {
+  sdkKey: '32-alpha-numeric-sdk-key', // Replace with your real SDK key
+  accountId: '123456', // Replace with your real account ID
+  logger: {
+    level: 'debug',
+  },
+};
 
-  if (!isReady()) {
-    return <div>Default/Zero state</div>;
-  }
-  // Check if the flag is enabled
-  const isEnabled = flag?.isEnabled();
-  if (isEnabled) {
-    // Use the flag object returned by useGetFlag to retrieve a specific variable
-    // Replace 'variableKey' with the actual key for the variable you want to retrieve
-    const variableKey = 'variable_name'; // Replace with actual variable key
-    const variableValue = useGetFlagVariable(flag, variableKey, 'default_value');
+const userContext: IVWOContextModel = {
+  id: 'unique_user_id',
+  customVariables: { age: 25, location: 'US' },
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+  ipAddress: '1.1.1.1',
+};
 
-    // Display the feature flag variable value
-    return (
-      <div>
-        <p>Feature Flag Variable Value: {variableValue}</p>
-      </div>
-    );
-  }
+const fallbackComponent = <div>Initializing VWO...</div>;
 
-  // Display a message if the feature is not enabled
+const App = () => {
+  const [vwoClient, setVwoClient] = useState<IVWOClient | null>(null);
+
+  useEffect(() => {
+    const initializeVWO = async () => {
+      const client = await init(vwoConfig);
+      setVwoClient(client);
+    };
+
+    initializeVWO();
+  }, []);
+
+  if (!vwoClient) return fallbackComponent;
+
   return (
-    <div>
-      <p>Feature is not enabled!</p>
-    </div>
+    <VWOProvider client={vwoClient} userContext={userContext}>
+      <YourComponent />
+    </VWOProvider>
   );
 };
 
-export default YourComponent;
+export default App;
 ```
+
+### Basic Implementation without User Context
+
+If you don't have user details available while initialising the VWOProvider you can pass it later in `useGetFlag` hook.
+
+```typescript
+import React from 'react';
+import { VWOProvider, IVWOOptions, IVWOContextModel } from 'vwo-fme-react-sdk';
+
+const vwoConfig: IVWOOptions = {
+  sdkKey: '32-alpha-numeric-sdk-key', // Your VWO SDK Key
+  accountId: '123456', // Your VWO Account ID
+  logger: {
+    level: 'debug', // Optional log level for debugging
+  },
+};
+
+// Optional: Provide a fallback UI component that will be displayed while VWOProvider initializes.
+// This is useful for showing a loading state or placeholder content during SDK initialization.
+const fallbackComponent = <div>Initializing VWO...</div>;
+
+const App = () => (
+  <VWOProvider config={vwoConfig} fallbackComponent={fallbackComponent}>
+    <YourComponent />
+  </VWOProvider>
+);
+
+export default App;
+
+```
+
+To learn more about on how to pass context in `useGetFlag` hook, [click here](#basic-feature-flagging).
 
 ## Advanced Configuration Options
 
-To customize the SDK further, additional parameters can be passed to the `VWOProvider` component. Here’s a table describing each option:
+To customize the SDK further, additional parameters can be passed to the `VWOProvider` component using `config` parameter. Here’s a table describing each option:
 
 | **Parameter**  | **Description**                                                                                                                                             | **Required** | **Type** | **Example**                     |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -------- | ------------------------------- |
@@ -111,6 +155,19 @@ To customize the SDK further, additional parameters can be passed to the `VWOPro
 | `logger`       | Toggle log levels for more insights or for debugging purposes. You can also customize your own transport in order to have better control over log messages. | No           | Object   | See [Logger](#logger) section   |
 
 Refer to the [official VWO documentation](https://developers.vwo.com/v2/docs/fme-react-initialization) for additional parameter details.
+
+## Available Hooks
+
+The VWO FME React SDK offers a comprehensive suite of React hooks that enable seamless integration of feature management and experimentation capabilities into your application. Here are the key hooks available:
+
+| Hook                  | Definition                                                     | Example                                                             |
+| --------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `useGetFlag`          | Retrieve feature flag status and variables for a specific user | [Learn how to use feature flags](#basic-feature-flagging)           |
+| `useGetFlagVariable`  | Access individual feature flag variables                       | [Learn how to access individual variables](#basic-feature-flagging) |
+| `useGetFlagVariables` | Get all variables associated with a feature flag               | [Learn how to access all flag variables](#basic-feature-flagging)   |
+| `useTrackEvent`       | Track custom events and user interactions                      | [Learn how to track user events](#custom-event-tracking)            |
+| `useSetAttribute`     | Set user attributes for targeting and segmentation             | [Learn how to set user attributes](#pushing-attributes)             |
+| `useVWOClient`        | Access the underlying VWO client instance                      | [Learn how to access VWO client](#vwo-client-usage)                 |
 
 ### User Context
 
@@ -129,8 +186,10 @@ The following table explains all the parameters in the `context` object:
 
 #### Example
 
-```javascript
-const userContext = {
+```typescript
+import { IVWOContextModel } from 'vwo-fme-react-sdk';
+
+const userContext: IVWOContextModel = {
   id: 'unique_user_id',
   customVariables: { age: 25, location: 'US' },
   userAgent:
@@ -139,22 +198,96 @@ const userContext = {
 };
 ```
 
+### VWO Client Usage
+
+The `useVWOClient` hook provides direct access to the underlying VWO client instance, allowing you to utilize all available VWO client methods like `getFlag`, `trackEvent` and `setAttribute`.
+
+#### Hook Return Type
+
+| Property    | Description                                                                | Type         |
+| ----------- | -------------------------------------------------------------------------- | ------------ |
+| `vwoClient` | VWO client instance with access to all client methods                      | `IVWOClient` |
+| `isReady`   | Boolean indicating whether the VWO SDK client has initialized successfully | `boolean`    |
+
+#### Example Usage
+
+```typescript
+import React, { useEffect, useState } from 'react';
+import { useVWOClient, IVWOContextModel } from 'vwo-fme-react-sdk';
+
+const FeatureFlagComponent = () => {
+  const [isFeatureEnabled, setIsFeatureEnabled] = useState(false);
+  const {vwoClient, isReady } = useVWOClient();
+
+  useEffect(() => {
+    const checkFeature = async () => {
+      if (!isReady) {
+        console.log('VWO Client not available');
+        return;
+      }
+
+      // Define user context (could be dynamic)
+      const userContext: IVWOContextModel = { id: 'unique_user_id' };
+
+      try {
+        // Fetch the feature flag using getFlag method
+        const flag = await vwoClient.getFlag('feature_key', userContext);
+
+        // Check if the feature is enabled
+        setIsFeatureEnabled(flag.isEnabled());
+      } catch (error) {
+        console.error('Error checking feature flag:', error);
+      }
+    };
+
+    checkFeature();
+  }, [vwoClient, isReady]);
+
+  return (
+    <div>
+      {isFeatureEnabled ? (
+        <p>The feature is enabled!</p>
+      ) : (
+        <p>The feature is not enabled.</p>
+      )}
+    </div>
+  );
+};
+
+export default FeatureFlagComponent;
+```
+
 ### Basic Feature Flagging
 
 Feature Flags serve as the foundation for all testing, personalization, and rollout rules within FME.
 To implement a feature flag, first use the `useGetFlag` hook to retrieve the flag configuration.
 The `useGetFlag` hook provides a simple way to check if a feature is enabled for a specific user and access its variables. It returns a feature flag object that contains methods for checking the feature's status and retrieving any associated variables.
 
+#### Hook Parameters
+
 | Parameter    | Description                                                    | Required | Type   | Example                   |
 | ------------ | -------------------------------------------------------------- | -------- | ------ | ------------------------- |
 | `featureKey` | Unique identifier of the feature flag                          | Yes      | String | `'new_checkout'`          |
 | `context`    | User Context to be passed, if not at the time of `VWOProvider` | No       | Object | `{ id: 'unique_user_id'}` |
 
-Example usage:
+#### Hook Return Type
 
-```javascript
+The `useGetFlag` hook returns a flag object and an `isReady` boolean that indicates when the VWO SDK client has initialized and the flag data is available.
+
+| Property  | Description                                                                | Type      |
+| --------- | -------------------------------------------------------------------------- | --------- |
+| `flag`    | Feature flag object containing status and variables                        | `IFlag`   |
+| `isReady` | Boolean indicating whether the VWO SDK client has initialized successfully | `boolean` |
+
+The `IFlag` object contains methods and properties for checking feature status and accessing variables. It is recommended to check `isReady` before using the `flag` object to ensure proper initialization.
+
+Use the `isReady` flag to determine when the feature flag data has been fully initialized and is safe to access. This helps prevent rendering based on incomplete or default flag values, thereby avoiding flicker or inconsistent UI states.
+
+Example Usage if `userContext` was already provided in `VWOProvider`.
+
+```typescript
 import React from 'react';
-import { useGetFlag, useGetFlagVariable } from 'vwo-fme-react-sdk'; // Import hooks
+import { useGetFlag, useGetFlagVariable, useGetFlagVariables } from 'vwo-fme-react-sdk'; // Import hooks
 
 const YourComponent = () => {
   // Retrieve the flag using the feature key
@@ -163,29 +296,49 @@ const YourComponent = () => {
   // Or, pass userContext, if not provided at the time of using VWOProvider or you want to use updated user context
   // const { flag, isReady } = useGetFlag('feature_key', userContext);
 
-  if (!isReady()) {
-    return <div>Default/Zero state</div>;
-  }
-  // Check if the flag is enabled
-  const isEnabled = flag?.isEnabled();
-  if (isEnabled) {
-    // Use the flag object returned by useGetFlag to retrieve a specific variable
-    // Replace 'variableKey' with the actual key for the variable you want to retrieve
-    const variableKey = 'variable_name'; // Replace with actual variable key
-    const variableValue = useGetFlagVariable(flag, variableKey, 'default_value');
+  if (!isReady) { return <div>Default/Zero state</div>; }
 
-    // Display the feature flag variable value
-    return (
-      <div>
-        <p>Feature Flag Variable Value: {variableValue}</p>
-      </div>
-    );
-  }
+  // Use the flag object returned by useGetFlag to retrieve a specific variable
+  const variableValue = useGetFlagVariable(flag, "variable-value", "default-value");
+  const allVariable = useGetFlagVariable(flag);
 
-  // Display a message if the feature is not enabled
   return (
     <div>
-      <p>Feature is not enabled!</p>
+      {/* Display the feature flag variable value */}
+      <p>Feature Flag Variable Value: {variableValue}</p>
+    </div>
+  );
+};
+
+export default YourComponent;
+```
+
+Example Usage if `userContext` was not provided in `VWOProvider`.
+
+```typescript
+import React from 'react';
+import { useGetFlag, useGetFlagVariable, IVWOContextModel } from 'vwo-fme-react-sdk'; // Import hooks
+
+const YourComponent = () => {
+
+  const userContext: IVWOContextModel = {
+    id: 'unique_user_id',
+    customVariables: { age: 25, location: 'US' },
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    ipAddress: '1.1.1.1',
+  };
+  // Retrieve the flag using the feature key
+  const { flag, isReady } = useGetFlag('feature_key', userContext);
+
+  if (!isReady) { return <div>Default/Zero state</div>; }
+
+  // Use the flag object returned by useGetFlag to retrieve a specific variable
+  const variableValue = useGetFlagVariable(flag, "variable-value", "default-value");
+
+  return (
+    <div>
+      {/* Display the feature flag variable value */}
+      <p>Feature Flag Variable Value: {variableValue}</p>
     </div>
   );
 };
@@ -195,7 +348,9 @@ export default YourComponent;
 
 ### Custom Event Tracking
 
-Feature flags can be enhanced with connected metrics to track key performance indicators (KPIs) for your features. These metrics help measure the effectiveness of your testing rules by comparing control versus variation performance, and evaluate the impact of personalization and rollout campaigns. Use the `useTrackEvent` hook to track custom events like conversions, user interactions, and other important metrics:
+Feature flags can be enhanced with connected metrics to track key performance indicators (KPIs) for your features. These metrics help measure the effectiveness of your testing rules by comparing control versus variation performance, and evaluate the impact of personalization and rollout campaigns. Use the `useTrackEvent` hook to track custom events like conversions, user interactions, and other important metrics.
+
+The `useTrackEvent` hook returns an object containing a `trackEvent` function and an `isReady` boolean. The `trackEvent` function allows you to track custom events and conversions, while `isReady` indicates if the hook is ready to be used. The `trackEvent` function accepts the following parameters:
 
 | Parameter         | Description                                              | Required | Type   | Example                |
 | ----------------- | -------------------------------------------------------- | -------- | ------ | ---------------------- |
@@ -205,21 +360,21 @@ Feature flags can be enhanced with connected metrics to track key performance in
 Example usage:
 
 ```javascript
-import { useTrackEvent } from 'vwo-fme-react-sdk'; // Import the hook
+import { useTrackEvent } from 'vwo-fme-react-sdk';
 
-const YourComponent = () => {
-  // Track an event when a button is clicked, the second parameter for useTrackEvent is optional.
-  useTrackEvent('button_click', { userType: 'premium' });
-};
+function YourComponent() {
+  const { trackEvent, isReady } = useTrackEvent();
 
-export default YourComponent;
+  return <button onClick={() => trackEvent('button_clicked')}>Click Me</button>;
+}
 ```
 
 See [Tracking Conversions](https://developers.vwo.com/v2/docs/fme-react-metrics-tracking#usage) documentation for more information.
 
 ### Pushing Attributes
 
-User attributes provide rich contextual information about users, enabling powerful personalization. The `useSetAttribute` hook provides a simple way to associate these attributes with users in VWO for advanced segmentation. Here's what you need to know about the method parameters:
+User attributes provide rich contextual information about users, enabling powerful personalization. The `useSetAttribute` hook provides a simple way to associate these attributes with users in VWO for advanced segmentation.
+The `useSetAttribute` hook returns an object containing a `setAttribute` function and an `isReady` boolean. The `setAttribute` allows you to set user attribute, while `isReady` indicates if the hook is ready to be used. This `setAttribute` function accepts the following parameters:
 
 | Parameter      | Description                                                                                                                        | Required | Type   | Example                       |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ----------------------------- |
@@ -228,14 +383,13 @@ User attributes provide rich contextual information about users, enabling powerf
 Example usage:
 
 ```javascript
-import { useSetAttribute } from 'vwo-fme-react-sdk'; // Import the hook
+import { useSetAttribute } from 'vwo-fme-react-sdk';
 
-const YourComponent = () => {
-  // Set attributes for the user
-  useSetAttribute({ age: 25, location: 'US' });
-};
+function YourComponent() {
+  const { setAttribute, isReady } = useSetAttribute();
 
-export default YourComponent;
+  return <button onClick={() => setAttribute({ age: 25, location: 'US' })}>Click Me</button>;
+}
 ```
 
 See [Pushing Attributes](https://developers.vwo.com/v2/docs/fme-react-attributes#usage) documentation for additional information.
@@ -244,15 +398,18 @@ See [Pushing Attributes](https://developers.vwo.com/v2/docs/fme-react-attributes
 
 The `pollInterval` is an optional parameter that allows the SDK to automatically fetch and update settings from the VWO server at specified intervals. Setting this parameter ensures your application always uses the latest configuration.
 
-```javascript
-const vwoConfig = {
+```typescript
+import { VWOProvider, IVWOOptions, IVWOContextModel } from 'vwo-fme-react-sdk';
+const vwoConfig: IVWOOptions = {
   sdkKey: '32-alpha-numeric-sdk-key', // Your VWO SDK Key
   accountId: '123456', // Your VWO Account ID
   pollInterval: 60000, // Time interval for fetching updates from VWO servers (in milliseconds)
 };
 
+const userContext: IVWOContextModel = { id: 'unique_user_id' };
+
 const App = () => (
-  <VWOProvider config={vwoConfig} userContext={{ id: 'unique_user_id' }}>
+  <VWOProvider config={vwoConfig} userContext={userContext}>
     <YourComponent />
   </VWOProvider>
 );
@@ -272,8 +429,8 @@ Key benefits of implementing storage:
 
 The storage mechanism ensures that once a decision is made for a user, it remains consistent even if campaign settings are modified in the VWO Application. This is particularly useful for maintaining a stable user experience during A/B tests and feature rollouts.
 
-```javascript
-import { VWOProvider } from 'vwo-fme-react-sdk';
+```typescript
+import { VWOProvider, IVWOOptions, IVWOContextModel, StorageConnector } from 'vwo-fme-react-sdk';
 
 class StorageConnector extends StorageConnector {
   constructor() {
@@ -300,7 +457,7 @@ class StorageConnector extends StorageConnector {
   }
 }
 
-const vwoConfig = {
+const vwoConfig: IVWOOptions = {
   sdkKey: '32-alpha-numeric-sdk-key', // Your VWO SDK Key
   accountId: '123456', // Your VWO Account ID
   logger: {
@@ -309,8 +466,10 @@ const vwoConfig = {
   storage: StorageConnector,
 };
 
+const userContext: IVWOContextModel = {id: 'unique_user_id'};
+
 const App = () => (
-  <VWOProvider config={vwoConfig} userContext={{ id: 'unique_user_id' }}>
+  <VWOProvider config={vwoConfig} userContext={userContext}>
     <YourComponent />
   </VWOProvider>
 );
@@ -330,8 +489,9 @@ To gain more control over VWO's logging behaviour, you can use the `logger` para
 
 #### Example 1: Set log level to control verbosity of logs
 
-```javascript
-const options = {
+```typescript
+import { VWOProvider, IVWOOptions, IVWOContextModel } from 'vwo-fme-react-sdk';
+const vwoConfig: IVWOOptions = {
   sdkKey: '32-alpha-numeric-sdk-key', // SDK Key
   accountId: '123456', // VWO Account ID
   logger: {
@@ -339,8 +499,10 @@ const options = {
   },
 };
 
+const userContext: IVWOContextModel = {id: 'unique_user_id'};
+
 const App = () => (
-  <VWOProvider config={vwoConfig} userContext={{ id: 'unique_user_id' }}>
+  <VWOProvider config={vwoConfig} userContext={userContext}>
     <YourComponent />
   </VWOProvider>
 );
@@ -350,8 +512,9 @@ export default App;
 
 #### Example 2: Add custom prefix to log messages for easier identification
 
-```javascript
-const options = {
+```typescript
+import { VWOProvider, IVWOOptions, IVWOContextModel } from 'vwo-fme-react-sdk';
+const vwoConfig: IVWOOptions = {
   sdkKey: '32-alpha-numeric-sdk-key', // SDK Key
   accountId: '123456', // VWO Account ID
   logger: {
@@ -360,8 +523,10 @@ const options = {
   },
 };
 
+const userContext: IVWOContextModel = {id: 'unique_user_id'};
+
 const App = () => (
-  <VWOProvider config={vwoConfig} userContext={{ id: 'unique_user_id' }}>
+  <VWOProvider config={vwoConfig} userContext={userContext}>
     <YourComponent />
   </VWOProvider>
 );
