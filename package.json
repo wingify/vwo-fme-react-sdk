@@ -1,6 +1,6 @@
 {
   "name": "vwo-fme-react-sdk",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "VWO React SDK for Feature Management and Experimentation",
   "source": "lib/index.ts",
   "main": "dist/vwo-fme-react-sdk.cjs.production.min.js",

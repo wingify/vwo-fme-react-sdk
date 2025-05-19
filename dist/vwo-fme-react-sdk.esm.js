@@ -16,7 +16,7 @@
  */
 import React, { useContext, createContext, useState, useMemo, useEffect, useCallback } from 'react';
 import { init } from 'vwo-fme-node-sdk';
-export { Flag, StorageConnector, init } from 'vwo-fme-node-sdk';
+export { Flag, LogLevelEnum, StorageConnector, init } from 'vwo-fme-node-sdk';
 
 /**
  * Copyright 2025 Wingify Software Pvt. Ltd.

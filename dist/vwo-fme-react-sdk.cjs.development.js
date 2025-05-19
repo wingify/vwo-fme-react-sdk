@@ -1090,6 +1090,12 @@ Object.defineProperty(exports, 'Flag', {
     return vwoFmeNodeSdk.Flag;
   }
 });
+Object.defineProperty(exports, 'LogLevelEnum', {
+  enumerable: true,
+  get: function () {
+    return vwoFmeNodeSdk.LogLevelEnum;
+  }
+});
 Object.defineProperty(exports, 'StorageConnector', {
   enumerable: true,
   get: function () {

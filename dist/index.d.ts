@@ -22,5 +22,12 @@ export { useTrackEvent, ITrackEvent } from './useTrackEvent';
 export { useSetAttribute, ISetAttribute } from './useSetAttribute';
 export { useVWOContext } from './VWOContext';
 export { VWOClientResult } from './useVWOClient';
-export { init } from 'vwo-fme-node-sdk';
-export { IVWOContextModel, IVWOClient, IVWOOptions, Flag, StorageConnector } from 'vwo-fme-node-sdk';
+export {
+  init,
+  IVWOContextModel,
+  IVWOClient,
+  IVWOOptions,
+  Flag,
+  StorageConnector,
+  LogLevelEnum,
+} from 'vwo-fme-node-sdk';
