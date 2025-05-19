@@ -106,17 +106,17 @@ export class LogManager extends Logger implements ILogManager {
 
   /**
    * Adds a single transport to the LogManager.
-   * @param {Record<any, any>} transport - The transport object to add.
+   * @param {Record<string, any>} transport - The transport object to add.
    */
-  addTransport(transport: Record<any, any>): void {
+  addTransport(transport: Record<string, any>): void {
     this.transportManager.addTransport(transport);
   }
 
   /**
    * Adds multiple transports to the LogManager.
-   * @param {Array<Record<any, any>>} transports - The list of transport objects to add.
+   * @param {Array<Record<string, any>>} transports - The list of transport objects to add.
    */
-  addTransports(transports: Record<any, any>): void {
+  addTransports(transports: Record<string, any>[]): void {
     for (let i = 0; i < transports.length; i++) {
       this.addTransport(transports[i]);
     }

@@ -73,8 +73,9 @@ export class LogTransportManager implements IlogTransport {
     // Default to the most specific level available
     // transportLevel = transportLevel || configLevel || this.config.level;
 
-    const targetLevel = LogLevelNumberEnum[transportLevel.toUpperCase()];
-    const desiredLevel = LogLevelNumberEnum[(configLevel || this.config.level).toUpperCase()];
+    const targetLevel = LogLevelNumberEnum[transportLevel.toUpperCase() as keyof typeof LogLevelNumberEnum];
+    const desiredLevel =
+      LogLevelNumberEnum[(configLevel || this.config.level).toUpperCase() as keyof typeof LogLevelNumberEnum];
 
     return targetLevel >= desiredLevel;
   }

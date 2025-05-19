@@ -80,6 +80,6 @@ export class ConsoleTransport implements Logger {
    * @param {string} message - The message to log.
    */
   consoleLog(level: string, message: string): void {
-    console[level](message); // Use console's logging function dynamically based on the level
+    (console[level as keyof Console] as Function)(message);
   }
 }

@@ -31,8 +31,9 @@ let logger: LogManager | null = null;
  */
 export function initLogger(config: any) {
   if (!logger) {
-    logger = new LogManager(config.logger || {});
+    logger = new LogManager(config?.logger || {});
   }
+  return logger;
 }
 
 /**

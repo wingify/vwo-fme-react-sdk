@@ -86,7 +86,7 @@ export class LogMessageBuilder implements ILogMessageBuilder {
       [LogLevelEnum.ERROR]: upperCaseLevel,
     };
 
-    return LogLevelColorInfoEnum[level];
+    return LogLevelColorInfoEnum[level as keyof typeof LogLevelColorInfoEnum];
   }
 
   /**
