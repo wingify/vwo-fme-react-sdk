@@ -15,16 +15,18 @@
  */
 
 // Components
-export { VWOProvider } from './VWOProvider';
+export { VWOProvider, IVWOProvider, VWOProviderWithClient, VWOProviderWithConfig } from './VWOProvider';
 
 // Hooks
 export { useVWOClient } from './useVWOClient';
-export { useGetFlag } from './useGetFlag';
+export { useGetFlag, IFlag } from './useGetFlag';
 export { useGetFlagVariable } from './useGetFlagVariable';
 export { useGetFlagVariables } from './useGetFlagVariable';
-export { useTrackEvent } from './useTrackEvent';
-export { useSetAttribute } from './useSetAttribute';
+export { useTrackEvent, ITrackEvent } from './useTrackEvent';
+export { useSetAttribute, ISetAttribute } from './useSetAttribute';
 export { useVWOContext } from './VWOContext';
+export { VWOClientResult } from './useVWOClient';
 
 // Export init method from vwo-fme-node-sdk
 export { init } from 'vwo-fme-node-sdk';
+export { IVWOContextModel, IVWOClient, IVWOOptions, Flag, StorageConnector } from 'vwo-fme-node-sdk';

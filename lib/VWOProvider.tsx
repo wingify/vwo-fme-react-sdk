@@ -14,48 +14,57 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState, useRef, ReactNode } from 'react';
-import { init } from 'vwo-fme-node-sdk';
+import React, { useEffect, useState, ReactNode, useMemo } from 'react';
+import { init, IVWOContextModel, IVWOClient, IVWOOptions } from 'vwo-fme-node-sdk';
 import { VWOContext } from './VWOContext';
-import { initLogger, getLogger } from './services/LoggerService';
+import { initLogger } from './services/LoggerService';
+import { LogMessageEnum } from './enum/LogMessageEnum';
+import { buildMessage } from './utils/LogMessageUtil';
 
-interface VWOProviderProps {
-  client?: any;
-  config?: any;
-  userContext?: any;
+export interface VWOProviderWithClient {
+  client: IVWOClient;
+  userContext?: IVWOContextModel;
   children: ReactNode;
+  fallbackComponent?: ReactNode;
 }
+
+export interface VWOProviderWithConfig {
+  config: IVWOOptions;
+  userContext?: IVWOContextModel;
+  children: ReactNode;
+  fallbackComponent?: ReactNode;
+}
+
+export type IVWOProvider = VWOProviderWithClient | VWOProviderWithConfig;
 
 /**
  * VWOProvider component to provide VWO client and configuration context to child components.
- *
- * @param {Object} props - The properties for the VWOProvider component.
- * @param {Object} props.client - The VWO client instance.
- * @param {Object} props.config - Configuration settings for the VWO client.
- * @param {Object} props.userContext - Initial user context for the VWO client.
- * @param {React.ReactNode} props.children - Child components that will have access to the VWO context.
- * @returns {JSX.Element} The provider component wrapping its children with VWO context.
+ * 
+ * @param props - The props for the VWOProvider component.
+ * @returns A React element that provides the VWO client and configuration context to child components.
  */
-export const VWOProvider: React.FC<VWOProviderProps> = ({ client, config, userContext, children }) => {
-  const [vwoClient, setVwoClient] = useState<any>(client || null);
-  const [context, setContext] = useState<any>(userContext || null);
-  const vwoClientRef = useRef<any>(vwoClient); // Store the client reference without triggering re-renders
-  const isMounted = useRef(true); // Prevent updates after unmount
+export function VWOProvider(props: IVWOProvider): React.ReactElement {
+  const { userContext, children, fallbackComponent } = props;
+  const client = 'client' in props ? props.client : null;
+  const config = 'config' in props ? props.config : null;
+  
+  const [vwoClient, setVwoClient] = useState<IVWOClient | null>(client || null);
+  const [context, setContext] = useState<IVWOContextModel | null>(userContext || null);
+  const [isReady, setIsReady] = useState<boolean>(false);
 
-  const logger = getLogger();
-
-  // Initialize logger globally before using it
-  useEffect(() => {
-    if (config?.logger) {
-      initLogger(config);
-    }
-  }, [config]);
+  const logger = initLogger(client?.options || config);
+  const memoizedConfig = useMemo(() => config || client?.options, []);
 
   // Initialize the VWO SDK instance only once when the component mounts or if config is updated
   useEffect(() => {
-    // If neither vwoClient nor config is provided, log the error
-    if (!vwoClient && !config) {
-      logger.error("VWOProvider Error: Either `client` or `config` must be provided.");
+    if(config && vwoClient) {
+      logger.warn(LogMessageEnum.VWO_PROVIDER_CLIENT_CONFIG_WARNING);
+    }
+    if (vwoClient) {
+      setIsReady(true);
+      return;
+    } else if (!config) {
+      logger.error(LogMessageEnum.VWO_PROVIDER_CONFIG_REQUIRED);
       return;
     }
 
@@ -64,13 +73,11 @@ export const VWOProvider: React.FC<VWOProviderProps> = ({ client, config, userCo
         if (!vwoClient && config) {
           // Initialize the VWO SDK instance if vwoClient is not already initialized
           const instance = await init(config);
-          if (isMounted.current) {
-            setVwoClient(instance);
-            vwoClientRef.current = instance;
-          }
+          setVwoClient(instance);
+          setIsReady(true);
         }
       } catch (error) {
-        logger.error(`VWO-SDK Initialization failed: ${error}`);
+        logger.error(buildMessage(LogMessageEnum.VWO_SDK_INITIALIZATION_FAILED, { error }));
       }
     };
 
@@ -78,18 +85,11 @@ export const VWOProvider: React.FC<VWOProviderProps> = ({ client, config, userCo
     if (!vwoClient && config) {
       initializeVWO();
     }
-
-    return () => {
-      isMounted.current = false;
-      if (vwoClientRef.current && vwoClientRef.current.destroy) {
-        vwoClientRef.current.destroy();
-      }
-    };
-  }, [config, vwoClient]); // Re-run only when config or vwoClient changes
+  }, [memoizedConfig]); // Re-run only when config changes
 
   return (
-    <VWOContext.Provider value={{ vwoClient, userContext: context, setUserContext: setContext }}>
-      {children}
+    <VWOContext.Provider value={{ vwoClient, userContext: context, setUserContext: setContext, isReady }}>
+      {fallbackComponent && !isReady ? fallbackComponent : children}
     </VWOContext.Provider>
   );
 };

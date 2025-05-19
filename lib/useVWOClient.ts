@@ -14,28 +14,47 @@
  * limitations under the License.
  */
 
+import { IVWOClient } from 'vwo-fme-node-sdk';
 import { getLogger } from './services/LoggerService';
 import { useVWOContext } from './VWOContext';
+import { LogMessageEnum } from './enum/LogMessageEnum';
+import { buildMessage } from './utils/LogMessageUtil';
+import { HookEnum } from './enum/HookEnum';
+const defaultVwoClientResult: VWOClientResult = {
+  vwoClient: null,
+  isReady: false,
+};
+
+export interface VWOClientResult {
+  vwoClient: IVWOClient | null;
+  isReady: boolean;
+}
 
 /**
  * Returns the VWO SDK client instance
  * @returns VWO SDK client instance
  */
-export const useVWOClient = () => {
+export const useVWOClient = (): VWOClientResult => {
   const logger = getLogger();
+
   try {
     const context = useVWOContext();
 
-    // If the VWO SDK client is not found, throw an error
-    if (!context || !context.vwoClient) {
-      logger.error('useVWOClient must be used within a VWOProvider !!');
-      return null;
+    if (!context) {
+      logger.error(buildMessage(LogMessageEnum.INVALID_HOOK_USAGE, { hookName: HookEnum.VWO_CLIENT }));
+      return defaultVwoClientResult;
     }
 
-    // Return the VWO SDK client
-    return context.vwoClient;
+    if (!context.isReady) {
+      return defaultVwoClientResult;
+    }
+
+    return {
+      vwoClient: context.vwoClient,
+      isReady: true,
+    };
   } catch (error) {
-    logger.error(`Error in useVWOClient hook: ${error}`);
-    return null;
+    logger.error(buildMessage(LogMessageEnum.HOOK_ERROR, { error, hookName: HookEnum.VWO_CLIENT }));
+    return defaultVwoClientResult;
   }
 };

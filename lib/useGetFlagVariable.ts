@@ -16,23 +16,26 @@
 
 import { isObject } from './utils/DataTypeUtil';
 import { getLogger } from './services/LoggerService';
+import { Flag } from 'vwo-fme-node-sdk';
+import { LogMessageEnum } from './enum/LogMessageEnum';
+import { buildMessage } from './utils/LogMessageUtil';
 
 /**
  * Hook to get all variables from a flag
  * @param flag - The flag to get the variables from
  * @returns The variables from the flag
  */
-export const useGetFlagVariables = (flag: any) => {
+export const useGetFlagVariables = (flag: Flag): Array<Record<string, unknown>> => {
   const logger = getLogger();
   try {
     if (!flag || !isObject(flag)) {
-      logger.error('Flag is required for useGetFlagVariables hook and should be an object');
+      logger.error(LogMessageEnum.VWO_GET_FLAG_VARIABLES_FLAG_REQUIRED);
       return [];
     }
 
     return flag.getVariables();
   } catch (error) {
-    logger.error(`Error getting flag variables: ${error}`);
+    logger.error(buildMessage(LogMessageEnum.VWO_GET_FLAG_VARIABLES_ERROR, { error }));
     return [];
   }
 };
@@ -44,22 +47,21 @@ export const useGetFlagVariables = (flag: any) => {
  * @param defaultValue - The default value to return if the variable is not found
  * @returns The value of the variable
  */
-export const useGetFlagVariable = (flag: any, variableKey: string, defaultValue: any) => {
+export const useGetFlagVariable = <T>(flag: Flag, variableKey: string, defaultValue: T): T => {
   const logger = getLogger();
   try {
     if (!flag || !isObject(flag)) {
-      logger.error('Flag is required for useGetFlagVariable hook and should be an object');
-      return [];
+      return defaultValue;
     }
 
-    if (!flag || !variableKey) {
-      logger.error('Flag and variable key are required for useGetFlagVariable hook');
+    if (!variableKey) {
+      logger.error(LogMessageEnum.VWO_GET_FLAG_VARIABLE_REQUIRED);
       return defaultValue;
     }
 
     return flag.getVariable(variableKey, defaultValue);
   } catch (error) {
-    logger.error(`Error getting flag variable: ${error}`);
+    logger.error(buildMessage(LogMessageEnum.VWO_GET_FLAG_VARIABLE_ERROR, { error }));
     return defaultValue;
   }
 };

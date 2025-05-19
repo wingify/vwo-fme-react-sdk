@@ -16,20 +16,25 @@
 
 import { createContext, useContext } from 'react';
 import { getLogger } from './services/LoggerService';
-
+import { IVWOClient, IVWOContextModel } from 'vwo-fme-node-sdk';
+import { LogMessageEnum } from './enum/LogMessageEnum';
+import { buildMessage } from './utils/LogMessageUtil';
+import { HookEnum } from './enum/HookEnum';
 interface VWOContextType {
-  vwoClient: any;
-  userContext?: any;
-  setUserContext?: (context: any) => void;
+  vwoClient: IVWOClient | null;
+  userContext?: IVWOContextModel | null;
+  setUserContext?: (context: IVWOContextModel) => void;
+  isReady?: boolean;
 }
 
 export const VWOContext = createContext<VWOContextType>({
   vwoClient: null,
   userContext: null,
-  setUserContext: undefined, // Default is undefined
+  setUserContext: undefined,
+  isReady: false,
 });
 
-export const useVWOContext = () => {
+export const useVWOContext = (): VWOContextType | null => {
   const logger = getLogger();
   try {
     // Fetch the context
@@ -37,12 +42,12 @@ export const useVWOContext = () => {
 
     // If the context is not found, throw an error
     if (!context) {
-      logger.error('useVWOContext must be used within a VWOProvider');
+      logger.error(buildMessage(LogMessageEnum.INVALID_HOOK_USAGE, { hookName: HookEnum.VWO_CONTEXT }));
       return null;
     }
     return context;
   } catch (error) {
-    logger.error(`Error in useVWOContext hook: ${error}`);
+    logger.error(buildMessage(LogMessageEnum.HOOK_ERROR, { error, hookName: HookEnum.VWO_CONTEXT }));
     return null;
   }
 };

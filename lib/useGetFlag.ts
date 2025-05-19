@@ -18,86 +18,86 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useVWOContext } from './VWOContext';
 import { getLogger } from './services/LoggerService';
 import { isObject } from './utils/DataTypeUtil';
+import { Flag, IVWOContextModel } from 'vwo-fme-node-sdk';
+import { LogMessageEnum } from './enum/LogMessageEnum';
+import { buildMessage } from './utils/LogMessageUtil';
+import { HookEnum } from './enum/HookEnum';
+export interface IFlag {
+  flag: Flag;
+  isReady: boolean;
+}
+
+const createDefaultFlag = () =>
+  ({
+    isEnabled: () => false,
+    getVariables: (): unknown[] => [],
+    getVariable: <T = unknown>(key: string, defaultValue?: T) => defaultValue,
+  }) as unknown as Flag;
 
 /**
  * Custom hook to retrieve a feature flag using VWO client.
  *
  * @param {string} featureKey - The key of the feature flag to retrieve.
  * @param {Object} [context] - Optional user context to use for fetching the flag.
- * @returns {Object} An object containing the flag and a readiness status.
+ * @returns {FlagResult} An object containing the flag and a readiness status.
  */
-export const useGetFlag = (featureKey: string, context?: any) => {
-  // Define the error return schema for the hook
-  const errorReturnSchema = {
-    flag: {
-      isEnabled: (): boolean => false,
-      getVariables: (): Array<Record<string, any>> => [],
-      getVariable: (_key: string, defaultValue: any): any => defaultValue,
-    },
-    isReady: (): boolean => false,
+export const useGetFlag = (featureKey: string, context?: IVWOContextModel): IFlag => {
+  const defaultFlagResult: IFlag = {
+    flag: createDefaultFlag(),
+    isReady: false,
   };
-
-  // Destructure vwoClient, setUserContext, and userContext from VWOContext
-  const { vwoClient, setUserContext, userContext } = useVWOContext();
-
-  // State to store the flag and loading status
-  const [flag, setFlag] = useState<any | null>(null);
+  const { vwoClient, userContext, setUserContext, isReady } = useVWOContext();
+  const [flag, setFlag] = useState<Flag>(defaultFlagResult.flag);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Get the logger instance
   const logger = getLogger();
 
-  // Memoize the user context to prevent unnecessary re-renders
   const stableUserContext = useMemo(() => {
-    return context || userContext || {};
-  }, [JSON.stringify(context || userContext || {})]); // Only recreate if userContext actually changes
+    return (context || userContext || {}) as IVWOContextModel;
+  }, [JSON.stringify(context || userContext || {})]);
 
-  // Define the getFlag function to fetch the feature flag
   const getFlag = useCallback(async () => {
-    // Check if featureKey is provided
-    if (!featureKey) {
-      logger.error('Feature key is required for useGetFlag hook');
-      return errorReturnSchema;
-    }
-
-    // Check if the user context is a valid object
-    if (!isObject(stableUserContext)) {
-      logger.error('Invalid user context in useGetFlag hook');
-      return errorReturnSchema;
-    }
-
-    // Try to fetch the feature flag and handle errors
     try {
-      setIsLoading(true);
+      if (!isReady) {
+        logger.error(LogMessageEnum.VWO_NOT_READY_IN_USE_GET_FLAG);
+        return;
+      }
+
       const result = await vwoClient.getFlag(featureKey, stableUserContext);
       setFlag(result);
 
-      // Set the user context in the context to ensure it's available for other hooks
       setUserContext(stableUserContext);
     } catch (error) {
-      logger.error(`Error fetching feature flag "${featureKey}": ${error}`);
-      setFlag(null);
+      logger.error(
+        buildMessage(LogMessageEnum.VWO_GET_FLAG_ERROR, {
+          featureKey,
+          error,
+        }),
+      );
     } finally {
       setIsLoading(false);
     }
-  }, [featureKey, stableUserContext, vwoClient]);
+  }, [featureKey, stableUserContext, isReady]);
 
-  // Ensure vwoClient is ready
-  if (!vwoClient) {
-    logger.error('VWO Client is missing in useGetFlag hook. Ensure VWOProvider is correctly initialized.');
-    return errorReturnSchema;
-  }
-
-  // Run effect when dependencies change to fetch the flag
   useEffect(() => {
-    if (featureKey && vwoClient && stableUserContext) {
+    if (!featureKey) {
+      logger.error(LogMessageEnum.VWO_GET_FLAG_FEATURE_KEY_REQUIRED);
+      return;
+    }
+
+    if (!isObject(stableUserContext) || !stableUserContext.id) {
+      logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, { hookName: HookEnum.VWO_GET_FLAG }));
+      return;
+    }
+    // Check if all required dependencies are available
+    // stableUserContext && stableUserContext.id - check is added to handle the case where VWOProvider is not initialized
+    if (isReady && vwoClient && stableUserContext) {
       getFlag();
     }
-  }, [featureKey, stableUserContext, vwoClient]);
+  }, [featureKey, JSON.stringify(stableUserContext), isReady]);
 
-  // Return the flag and readiness status
   return {
     flag,
-    isReady: (): boolean => !isLoading && !!flag,
+    isReady: !isLoading && !!flag,
   };
 };

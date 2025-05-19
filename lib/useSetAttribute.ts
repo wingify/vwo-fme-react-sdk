@@ -17,37 +17,58 @@
 import { useVWOContext } from './VWOContext';
 import { isObject } from './utils/DataTypeUtil';
 import { getLogger } from './services/LoggerService';
+import { LogMessageEnum } from './enum/LogMessageEnum';
+import { buildMessage } from './utils/LogMessageUtil';
+import { HookEnum } from './enum/HookEnum';
 
 /**
- * Hook to set attributes for the user
- * @param attributeMap - The map of attributes to set
+ * Interface for the return type of useSetAttribute hook
  */
-export const useSetAttribute = (attributeMap: Record<string, string>) => {
+export interface ISetAttribute {
+  setAttribute: (attributeMap: Record<string, string | number | boolean>) => void;
+  isReady: boolean;
+}
+
+/**
+ * Hook to return a function for setting user attributes.
+ * @returns {ISetAttribute} Object containing setAttribute function and isReady boolean
+ */
+export const useSetAttribute = (): ISetAttribute => {
   const logger = getLogger();
-  try {
+
+  // Fetch the vwoClient and userContext from the context
+  const { vwoClient, userContext, isReady } = useVWOContext();
+
+  /**
+   * Function to set user attributes dynamically
+   * @param attributeMap - The map of attributes to set
+   */
+  const setAttribute = (attributeMap: Record<string, string | number | boolean>): void => {
+    // Return a no-op function if vwoClient or userContext is not available
+    if (!isReady) {
+      logger.error(buildMessage(LogMessageEnum.VWO_CLIENT_MISSING, { hookName: HookEnum.VWO_SET_ATTRIBUTE }));
+      return;
+    }
+    if (!userContext || !isObject(userContext) || !userContext.id) {
+      logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, { hookName: HookEnum.VWO_SET_ATTRIBUTE }));
+      return;
+    }
     if (!attributeMap || !isObject(attributeMap) || Object.keys(attributeMap).length === 0) {
-      logger.error(
-        'attributeMap(object having key-value pairs of user attributes) is required for useSetAttribute hook',
-      );
+      logger.error(LogMessageEnum.VWO_SET_ATTRIBUTE_MAP_REQUIRED);
       return;
     }
 
-    // Fetch the vwoClient and userContext from the context
-    const { vwoClient, userContext } = useVWOContext();
-
-    if (!vwoClient) {
-      logger.error('VWO Client is missing in useSetAttribute hook. Ensure VWOProvider is correctly initialized.');
-      return {};
+    try {
+      vwoClient.setAttribute(attributeMap, userContext); // Set the attributes
+      logger.info(
+        buildMessage(LogMessageEnum.VWO_SET_ATTRIBUTE_SUCCESS, {
+          attributes: JSON.stringify(attributeMap),
+        }),
+      );
+    } catch (error) {
+      logger.error(buildMessage(LogMessageEnum.VWO_SET_ATTRIBUTE_ERROR, { error }));
     }
+  };
 
-    if (!userContext || !isObject(userContext)) {
-      logger.error('Invalid user context in useSetAttribute hook. Ensure a valid userContext is provided.');
-      return {};
-    }
-
-    // Set the attributes
-    vwoClient.setAttribute(attributeMap, userContext);
-  } catch (error) {
-    logger.error(`Error setting attributes: ${error}`);
-  }
+  return { setAttribute, isReady };
 };
