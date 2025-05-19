@@ -5,6 +5,107 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-05-20
+
+### Added
+
+- `fallbackComponent` prop in `VWOProvider`
+  Introduced a new `fallbackComponent` prop to the `VWOProvider` component. This allows rendering a fallback UI (e.g., loading indicator) while the VWO SDK is initializing and fetching configuration settings.
+
+  ```jsx
+  const fallbackComponent = <div>Loading VWO...</div>;
+
+  const App = () => (
+    <VWOProvider config={vwoConfig} fallbackComponent={fallbackComponent}>
+      <YourComponent />
+    </VWOProvider>
+  );
+  ```
+
+- `isReady` flag in `useVWOClient` hook
+  Added an `isReady` flag to the `useVWOClient` hook, indicating when the VWO client SDK is fully initialized and ready. This ensures SDK methods (e.g., `getFlag`) are called only after the client is available.
+
+  ```tsx
+  const FeatureFlagComponent = () => {
+    const [isFeatureEnabled, setIsFeatureEnabled] = useState(false);
+    const { vwoClient, isReady } = useVWOClient();
+
+    useEffect(() => {
+      const checkFeature = async () => {
+        if (!isReady) {
+          console.log('VWO Client not available');
+          return;
+        }
+
+        // Define user context (could be dynamic)
+        const userContext: IVWOContextModel = { id: 'unique_user_id' };
+
+        try {
+          // Fetch the feature flag using getFlag method
+          const flag = await vwoClient.getFlag('feature_key', userContext);
+
+          // Check if the feature is enabled
+          setIsFeatureEnabled(flag.isEnabled());
+        } catch (error) {
+          console.error('Error checking feature flag:', error);
+        }
+      };
+
+      checkFeature();
+    }, [vwoClient, isReady]);
+
+    return <div>{isFeatureEnabled ? <p>The feature is enabled!</p> : <p>The feature is not enabled.</p>}</div>;
+  };
+  ```
+
+- Added unit tests using `Jest`
+  Added comprehensive unit tests using Jest for critical SDK components and hooks to improve code reliability and test coverage. Specifically:
+
+  - `VWOProvider`: Verified fallback rendering and context initialization.
+  - `useVWOClient` hook: Ensured proper handling of `vwoClient` and `isReady` flag states.
+  - `useTrackEvent` hook: Validated that the `trackEvent` function is returned and behaves as expected.
+  - `useSetAttribute` hook: Checked that attributes are correctly set and propagated.
+  - **SDK initialization logic**: Mocked and tested interaction with the VWO SDK to ensure correct setup and error handling.
+
+  Tests include coverage for happy paths, error scenarios, and edge cases, helping ensure stability across diverse usage contexts.
+
+### Changed
+
+- `useTrackEvent` hook enhancement
+  Updated the `useTrackEvent` hook to return the `trackEvent` function, enabling it to be called imperatively without relying on the component lifecycle.
+
+  ```jsx
+  import { useTrackEvent } from 'vwo-fme-react-sdk';
+
+  function YourComponent() {
+    const { trackEvent, isReady } = useTrackEvent();
+
+    return <button onClick={() => trackEvent('button_clicked')}>Click Me</button>;
+  }
+  ```
+
+- `useSetAttribute` hook enhancement
+  Updated the `useSetAttribute` hook to return the `setAttribute` function for programmatic updates of user attributes.
+
+  ```jsx
+  import { useSetAttribute } from 'vwo-fme-react-sdk';
+
+  function YourComponent() {
+    const { setAttribute, isReady } = useSetAttribute();
+
+    return <button onClick={() => setAttribute({ age: 25, location: 'US' })}>Click Me</button>;
+  }
+  ```
+
+- Improved `TypeScript` support
+  The SDK now leverages stricter and more accurate TypeScript types, improving developer experience and safety. Relevant interfaces such as `IVWOClient`, `IVWOOptions`, `IVWOContextModel`, `IVWOProvider`, `Flag`, etc. are now exported for external use.
+
+- `main`, `module`, and `browser` fields now point to minified files
+  Updated the `package.json` configuration to ensure `main`, `module`, and `browser` entries reference minified production-ready builds (`*.min.js`). This optimizes performance and bundle size for consumers of the SDK in both browser and Node environments.
+
+- Documentation update
+  Refreshed `README.md` with updated examples and documentation for new and existing features, ensuring clarity for developers integrating the SDK.
+
 ## [1.0.0] - 2025-04-12
 
 ### Changed
