@@ -1,0 +1,53 @@
+name: React SDK Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    if: "!contains(toJSON(github.event.commits.*.message), '[skip-ci]')"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        react-version: [16.8.0, 16.14.0, 17.0.2, 18.2.0]
+        node_version: [ 18.x, 20.x, 21.x, 22.x ] # 12.x, 13.x, 14.x, 15.x, 16.x,
+
+    name: Test on React ${{ matrix.react-version }} using Node.js ${{ matrix.node_version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version:  ${{ matrix.node_version }}
+
+      - name: Copy appropriate package.json
+        run: |
+          if [[ ${{ matrix.node_version }} == 12* ]]; then
+            cp package-below-node-16.json package.json
+          elif [[ ${{ matrix.node_version }} == 13* ]]; then
+            cp package-below-node-16.json package.json
+          elif [[ ${{ matrix.node_version }} == 14* ]]; then
+            cp package-below-node-16.json package.json
+          elif [[ ${{ matrix.node_version }} == 15* ]]; then
+            cp package-below-node-16.json package.json
+          elif [[ ${{ matrix.node_version }} == 16* ]]; then
+            cp package-below-node-16.json package.json
+          elif [[ ${{ matrix.node_version }} == 17* ]]; then
+            cp package-below-node-16.json package.json
+          elif [[ ${{ matrix.node_version }} == 19* ]]; then
+            cp package-below-node-16.json package.json
+          fi
+      - name: Install dependencies
+        run: |
+          yarn install
+          yarn add react@${{ matrix.react-version }} react-dom@${{ matrix.react-version }}
+
+      - name: Run tests
+        run: yarn test:coverage
