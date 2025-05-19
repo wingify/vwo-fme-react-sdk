@@ -25,7 +25,7 @@ import { LogManager } from '../logger/core/LogManager';
  * @param {object} config.logger - Optional logging configuration (e.g., log level, transports).
  * @returns {void} No return value; initializes the logger instance.
  */
-export declare function initLogger(config: any): void;
+export declare function initLogger(config: any): LogManager;
 /**
  * Retrieves the global logger instance.
  * Ensures that `initLogger` has been called before attempting to use logging.

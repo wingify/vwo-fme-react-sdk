@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 import React, { ReactNode } from 'react';
-interface VWOProviderProps {
-  client?: any;
-  config?: any;
-  userContext?: any;
+import { IVWOContextModel, IVWOClient, IVWOOptions } from 'vwo-fme-node-sdk';
+export interface VWOProviderWithClient {
+  client: IVWOClient;
+  userContext?: IVWOContextModel;
   children: ReactNode;
+  fallbackComponent?: ReactNode;
 }
+export interface VWOProviderWithConfig {
+  config: IVWOOptions;
+  userContext?: IVWOContextModel;
+  children: ReactNode;
+  fallbackComponent?: ReactNode;
+}
+export declare type IVWOProvider = VWOProviderWithClient | VWOProviderWithConfig;
 /**
  * VWOProvider component to provide VWO client and configuration context to child components.
  *
- * @param {Object} props - The properties for the VWOProvider component.
- * @param {Object} props.client - The VWO client instance.
- * @param {Object} props.config - Configuration settings for the VWO client.
- * @param {Object} props.userContext - Initial user context for the VWO client.
- * @param {React.ReactNode} props.children - Child components that will have access to the VWO context.
- * @returns {JSX.Element} The provider component wrapping its children with VWO context.
+ * @param props - The props for the VWOProvider component.
+ * @returns A React element that provides the VWO client and configuration context to child components.
  */
-export declare const VWOProvider: React.FC<VWOProviderProps>;
-export {};
+export declare function VWOProvider(props: IVWOProvider): React.ReactElement;

@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { IVWOClient } from 'vwo-fme-node-sdk';
+export interface VWOClientResult {
+  vwoClient: IVWOClient | null;
+  isReady: boolean;
+}
 /**
  * Returns the VWO SDK client instance
  * @returns VWO SDK client instance
  */
-export declare const useVWOClient: () => any;
+export declare const useVWOClient: () => VWOClientResult;

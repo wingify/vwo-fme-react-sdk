@@ -13,5 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export declare const VWOContext: any;
-export declare const useVWOContext: () => any;
+/// <reference types="react" />
+import { IVWOClient, IVWOContextModel } from 'vwo-fme-node-sdk';
+interface VWOContextType {
+  vwoClient: IVWOClient | null;
+  userContext?: IVWOContextModel | null;
+  setUserContext?: (context: IVWOContextModel) => void;
+  isReady?: boolean;
+}
+export declare const VWOContext: import('react').Context<VWOContextType>;
+export declare const useVWOContext: () => VWOContextType | null;
+export {};

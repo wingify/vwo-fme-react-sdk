@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 /**
- * Hook to track an event
- * @param eventName - The name of the event to track
- * @param eventProperties - The properties of the event to track (optional)
+ * Interface for the return type of useTrackEvent hook
  */
-export declare const useTrackEvent: (eventName: string, eventProperties?: Record<string, string>) => {};
+export interface ITrackEvent {
+  trackEvent: (
+    eventName: string,
+    eventProperties?: Record<string, string | number | boolean>,
+  ) => Promise<Record<string, boolean>>;
+  isReady: boolean;
+}
+/**
+ * Hook to provide the trackEvent function for tracking events.
+ * @returns {ITrackEvent} Object containing trackEvent function and isReady boolean
+ */
+export declare const useTrackEvent: () => ITrackEvent;

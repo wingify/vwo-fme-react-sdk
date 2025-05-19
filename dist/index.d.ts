@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { VWOProvider } from './VWOProvider';
+export { VWOProvider, IVWOProvider, VWOProviderWithClient, VWOProviderWithConfig } from './VWOProvider';
 export { useVWOClient } from './useVWOClient';
-export { useGetFlag } from './useGetFlag';
+export { useGetFlag, IFlag } from './useGetFlag';
 export { useGetFlagVariable } from './useGetFlagVariable';
 export { useGetFlagVariables } from './useGetFlagVariable';
-export { useTrackEvent } from './useTrackEvent';
-export { useSetAttribute } from './useSetAttribute';
+export { useTrackEvent, ITrackEvent } from './useTrackEvent';
+export { useSetAttribute, ISetAttribute } from './useSetAttribute';
 export { useVWOContext } from './VWOContext';
+export { VWOClientResult } from './useVWOClient';
 export { init } from 'vwo-fme-node-sdk';
+export { IVWOContextModel, IVWOClient, IVWOOptions, Flag, StorageConnector } from 'vwo-fme-node-sdk';

@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 /**
- * Hook to set attributes for the user
- * @param attributeMap - The map of attributes to set
+ * Interface for the return type of useSetAttribute hook
  */
-export declare const useSetAttribute: (attributeMap: Record<string, string>) => {};
+export interface ISetAttribute {
+  setAttribute: (attributeMap: Record<string, string | number | boolean>) => void;
+  isReady: boolean;
+}
+/**
+ * Hook to return a function for setting user attributes.
+ * @returns {ISetAttribute} Object containing setAttribute function and isReady boolean
+ */
+export declare const useSetAttribute: () => ISetAttribute;

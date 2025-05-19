@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Flag, IVWOContextModel } from 'vwo-fme-node-sdk';
-export interface IFlag {
-  flag: Flag;
-  isReady: boolean;
+export declare enum HookEnum {
+  VWO_CLIENT = 'useVWOClient',
+  VWO_CONTEXT = 'useVWOContext',
+  VWO_GET_FLAG = 'useGetFlag',
+  VWO_GET_FLAG_VARIABLE = 'useGetFlagVariable',
+  VWO_GET_FLAG_VARIABLES = 'useGetFlagVariables',
+  VWO_TRACK_EVENT = 'useTrackEvent',
+  VWO_SET_ATTRIBUTE = 'useSetAttribute',
 }
-/**
- * Custom hook to retrieve a feature flag using VWO client.
- *
- * @param {string} featureKey - The key of the feature flag to retrieve.
- * @param {Object} [context] - Optional user context to use for fetching the flag.
- * @returns {FlagResult} An object containing the flag and a readiness status.
- */
-export declare const useGetFlag: (featureKey: string, context?: IVWOContextModel) => IFlag;

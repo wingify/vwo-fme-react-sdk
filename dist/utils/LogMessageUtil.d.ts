@@ -13,16 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Flag, IVWOContextModel } from 'vwo-fme-node-sdk';
-export interface IFlag {
-  flag: Flag;
-  isReady: boolean;
-}
 /**
- * Custom hook to retrieve a feature flag using VWO client.
+ * Constructs a message by replacing placeholders in a template with corresponding values from a data object.
  *
- * @param {string} featureKey - The key of the feature flag to retrieve.
- * @param {Object} [context] - Optional user context to use for fetching the flag.
- * @returns {FlagResult} An object containing the flag and a readiness status.
+ * @param {string} template - The message template containing placeholders in the format `{key}`.
+ * @param {Record<string, any>} data - An object containing keys and values used to replace the placeholders in the template.
+ * @returns {string} The constructed message with all placeholders replaced by their corresponding values from the data object.
  */
-export declare const useGetFlag: (featureKey: string, context?: IVWOContextModel) => IFlag;
+export declare function buildMessage(template: string, data?: Record<string, any>): string;
