@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import { useTrackEvent } from '../lib/useTrackEvent';
 import { getLogger } from '../lib/services/LoggerService';
 import { useVWOContext } from '../lib/VWOContext';
