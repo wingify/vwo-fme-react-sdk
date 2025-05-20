@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { act, render, screen, waitFor } from '@testing-library/react-hooks';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import * as React from 'react';
 import { VWOProvider } from '../lib/VWOProvider'; // Update with correct import
