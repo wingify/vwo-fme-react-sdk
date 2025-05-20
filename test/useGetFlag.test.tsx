@@ -15,7 +15,8 @@
  */
 
 import React from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import { useGetFlag } from '../lib/useGetFlag';
 import { getLogger } from '../lib/services/LoggerService';
 import { VWOProvider } from '../lib/VWOProvider';

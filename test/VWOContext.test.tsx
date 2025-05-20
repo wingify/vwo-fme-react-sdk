@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import { useVWOContext } from '../lib/VWOContext';
 import { getLogger } from '../lib/services/LoggerService';
 import { IVWOContextModel } from 'vwo-fme-node-sdk';

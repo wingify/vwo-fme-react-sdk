@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import { useSetAttribute } from '../lib/useSetAttribute';
 import { getLogger } from '../lib/services/LoggerService';
 import { IVWOClient } from 'vwo-fme-node-sdk';
