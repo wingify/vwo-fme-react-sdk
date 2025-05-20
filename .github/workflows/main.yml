@@ -14,10 +14,10 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-        react-version: [16.8.0, 16.14.0, 17.0.2, 18.2.0]
+        react_version: [16.8.0, 16.14.0, 17.0.2, 18.2.0]
         node_version: [ 18.x, 20.x, 21.x, 22.x ] # 12.x, 13.x, 14.x, 15.x, 16.x,
 
-    name: Test on React ${{ matrix.react-version }} using Node.js ${{ matrix.node_version }}
+    name: Test on React ${{ matrix.react_version }} using Node.js ${{ matrix.node_version }}
 
     steps:
       - uses: actions/checkout@v4
@@ -46,10 +46,10 @@ jobs:
           fi
       - name: Install dependencies
         run: |
-          yarn add react@${{ matrix.react-version }} react-dom@${{ matrix.react-version }}
-          
+          yarn add react@${{ matrix.react_version }} react-dom@${{ matrix.react_version }}
+
           # Use compatible version of @testing-library/react for React < 18
-          if [[ "${{ matrix.react-version }}" =~ ^16.* || "${{ matrix.react-version }}" =~ ^17.* ]]; then
+          if [[ "${{ matrix.react_version }}" =~ ^16.* || "${{ matrix.react_version }}" =~ ^17.* ]]; then
             yarn add @testing-library/react@12 @testing-library/react-hooks@5
           else
             yarn add @testing-library/react @testing-library/react-hooks
@@ -58,3 +58,14 @@ jobs:
 
       - name: Run tests
         run: yarn test:coverage
+
+      - name: Notification
+        if: always()
+        id: slack
+        uses: wingify/slack-github-action@v1.15.1-wingify
+        with:
+          channel-id: 'vwo-fs-fme-sdk-job-status' # 'fs-review-team'
+          slack-message: "<!here> React FME SDK Test on *Node-${{ matrix.node_version }}* on *${{ matrix.os }}* using React-${{ matrix.react_version }} got *${{job.status}}* ${{job.status == 'success' && ':heavy_check_mark:' || ':x:'}} \nCommit: `${{github.event.head_commit.message}}`. \nCheck the latest build: https://github.com/wingify/vwo-fme-react-sdk/actions"
+          color: "${{job.status == 'success' && '#00FF00' || '#FF0000'}}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
