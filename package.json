@@ -1,14 +1,14 @@
 {
   "name": "vwo-fme-react-sdk",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "VWO React SDK for Feature Management and Experimentation",
   "source": "lib/index.ts",
   "main": "dist/vwo-fme-react-sdk.cjs.production.min.js",
-  "module": "dist/vwo-fme-react-sdk.esm.js",
+  "module": "dist/vwo-fme-react-sdk.cjs.production.min.js",
   "browser": "dist/vwo-fme-react-sdk.umd.production.min.js",
   "exports": {
     ".": {
-      "import": "./dist/vwo-fme-react-sdk.esm.js",
+      "import": "./dist/vwo-fme-react-sdk.cjs.production.min.js",
       "require": "./dist/vwo-fme-react-sdk.cjs.production.min.js",
       "types": "./dist/index.d.ts",
       "browser": {
