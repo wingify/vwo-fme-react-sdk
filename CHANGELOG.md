@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-06-12
+
+###
+
+- Replaced the copy-pasted modules with the monorepo VWO JavaScript packages @wingify/service-logger and @wingify/util-data-type as dependencies. This helps reduce the SDK size by approximately 40%.
+- Updated `vwo-fme-node-sdk` dependency version:
+  - to bring in-built storage capabilities leveraging `localStorage`.
+  - to remove Gateway Service dependency for using location and UA pre-segmentation options.
+
 ## [1.3.0] - 2025-05-20
 
 ### Changed

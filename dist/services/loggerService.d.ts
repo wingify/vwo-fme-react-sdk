@@ -16,7 +16,7 @@
 /**
  * logger.ts - Global Logger Singleton
  */
-import { LogManager } from '../logger/core/LogManager';
+import { LogManager } from '@wingify/service-logger';
 /**
  * Initializes the global logger instance.
  * This function should be called inside `VWOProvider` before logging is used anywhere in the application.
@@ -25,7 +25,7 @@ import { LogManager } from '../logger/core/LogManager';
  * @param {object} config.logger - Optional logging configuration (e.g., log level, transports).
  * @returns {void} No return value; initializes the logger instance.
  */
-export declare function initLogger(config: any): LogManager;
+export declare function initLogger(config: any): any;
 /**
  * Retrieves the global logger instance.
  * Ensures that `initLogger` has been called before attempting to use logging.

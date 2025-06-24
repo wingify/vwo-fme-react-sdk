@@ -15,468 +15,12 @@
  * limitations under the License.
  */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('react'), require('vwo-fme-node-sdk')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'react', 'vwo-fme-node-sdk'], factory) :
-  (global = global || self, factory(global['vwo-fme-react-sdk'] = {}, global.React, global.vwoFmeNodeSdk));
-}(this, (function (exports, React, vwoFmeNodeSdk) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('react'), require('vwo-fme-node-sdk'), require('@wingify/service-logger'), require('@wingify/util-data-type')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'react', 'vwo-fme-node-sdk', '@wingify/service-logger', '@wingify/util-data-type'], factory) :
+  (global = global || self, factory(global['vwo-fme-react-sdk'] = {}, global.React, global.vwoFmeNodeSdk, global.serviceLogger, global.utilDataType));
+}(this, (function (exports, React, vwoFmeNodeSdk, serviceLogger, utilDataType) { 'use strict';
 
   var React__default = 'default' in React ? React['default'] : React;
-
-  /**
-   * Copyright 2025 Wingify Software Pvt. Ltd.
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *    http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  /**
-   * Abstract class representing a logger.
-   * This class provides the structure for logging mechanisms and should be extended by specific logger implementations.
-   */
-  class Logger {}
-
-  /**
-   * Copyright 2025 Wingify Software Pvt. Ltd.
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *    http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  var LogLevelEnum;
-  (function (LogLevelEnum) {
-    LogLevelEnum["TRACE"] = "trace";
-    LogLevelEnum["DEBUG"] = "debug";
-    LogLevelEnum["INFO"] = "info";
-    LogLevelEnum["WARN"] = "warn";
-    LogLevelEnum["ERROR"] = "error";
-  })(LogLevelEnum || (LogLevelEnum = {}));
-
-  /**
-   * Copyright 2025 Wingify Software Pvt. Ltd.
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *    http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  /**
-   * ConsoleTransport class implements the Logger interface to provide logging functionality.
-   * It outputs logs to the console based on the log level set in the configuration.
-   */
-  class ConsoleTransport {
-    /**
-     * Constructor initializes the ConsoleTransport with a configuration object.
-     * @param {Record<string, any>} config - Configuration settings for the logger, including 'level'.
-     */
-    constructor(config = {}) {
-      this.config = config; // Store the configuration
-      this.level = this.config.level; // Set the logging level from the configuration
-    }
-    /**
-     * Logs a trace message.
-     * @param {string} message - The message to log.
-     */
-    trace(message) {
-      this.consoleLog(LogLevelEnum.TRACE, message);
-    }
-    /**
-     * Logs a debug message.
-     * @param {string} message - The message to log.
-     */
-    debug(message) {
-      this.consoleLog(LogLevelEnum.DEBUG, message);
-    }
-    /**
-     * Logs an informational message.
-     * @param {string} message - The message to log.
-     */
-    info(message) {
-      this.consoleLog(LogLevelEnum.INFO, message);
-    }
-    /**
-     * Logs a warning message.
-     * @param {string} message - The message to log.
-     */
-    warn(message) {
-      this.consoleLog(LogLevelEnum.WARN, message);
-    }
-    /**
-     * Logs an error message.
-     * @param {string} message - The message to log.
-     */
-    error(message) {
-      this.consoleLog(LogLevelEnum.ERROR, message);
-    }
-    /**
-     * Generic log function that logs messages to the console based on the log level.
-     * @param {string} level - The log level under which the message should be logged.
-     * @param {string} message - The message to log.
-     */
-    consoleLog(level, message) {
-      console[level](message);
-    }
-  }
-
-  /**
-   * Copyright 2025 Wingify Software Pvt. Ltd.
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *    http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  /**
-   * Implements the ILogMessageBuilder interface to provide a concrete log message builder.
-   */
-  class LogMessageBuilder {
-    /**
-     * Constructs a new LogMessageBuilder instance.
-     * @param {Record<string, any>} loggerConfig - Configuration for the logger.
-     * @param {Record<string, any>} transportConfig - Configuration for the transport mechanism.
-     */
-    constructor(loggerConfig, transportConfig) {
-      this.loggerConfig = loggerConfig;
-      this.transportConfig = transportConfig;
-      // Set the prefix, defaulting to an empty string if not provided.
-      this.prefix = this.transportConfig.prefix || this.loggerConfig.prefix || '';
-      // Set the date and time format, defaulting to the logger's format if the transport's format is not provided.
-      this.dateTimeFormat = this.transportConfig.dateTimeFormat || this.loggerConfig.dateTimeFormat;
-    }
-    /**
-     * Formats a log message combining level, prefix, date/time, and the actual message.
-     * @param {string} level - The log level.
-     * @param {string} message - The message to log.
-     * @returns {string} The formatted log message.
-     */
-    formatMessage(level, message) {
-      return `[${this.getFormattedLevel(level)}]: ${this.getFormattedPrefix(this.prefix)} ${this.getFormattedDateTime()} ${message}`;
-    }
-    getFormattedPrefix(prefix) {
-      return `${prefix}`;
-    }
-    /**
-     * Returns the formatted log level with appropriate coloring based on the log level.
-     * @param {string} level - The log level.
-     * @returns {string} The formatted log level.
-     */
-    getFormattedLevel(level) {
-      const upperCaseLevel = level.toUpperCase();
-      let LogLevelColorInfoEnum;
-      LogLevelColorInfoEnum = {
-        [LogLevelEnum.TRACE]: upperCaseLevel,
-        [LogLevelEnum.DEBUG]: upperCaseLevel,
-        [LogLevelEnum.INFO]: upperCaseLevel,
-        [LogLevelEnum.WARN]: upperCaseLevel,
-        [LogLevelEnum.ERROR]: upperCaseLevel
-      };
-      return LogLevelColorInfoEnum[level];
-    }
-    /**
-     * Retrieves the current date and time formatted according to the specified format.
-     * @returns {string} The formatted date and time.
-     */
-    getFormattedDateTime() {
-      return this.dateTimeFormat();
-    }
-  }
-
-  /**
-   * Copyright 2025 Wingify Software Pvt. Ltd.
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *    http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  /**
-   * Checks if a value is a function.
-   * @param val The value to check.
-   * @returns True if the value is a function, false otherwise.
-   */
-  function isFunction(val) {
-    return Object.prototype.toString.call(val) === '[object Function]';
-  }
-  /**
-   * Checks if a value is an object (excluding arrays, functions, regex, promises, and dates).
-   * @param val The value to check.
-   * @returns True if the value is a valid object, false otherwise.
-   */
-  function isObject(val) {
-    return Object.prototype.toString.call(val) === '[object Object]';
-  }
-  /**
-   * Checks if a value is a string.
-   * @param val The value to check.
-   * @returns True if the value is a string, false otherwise.
-   */
-  function isString(val) {
-    return typeof val === 'string' || Object.prototype.toString.call(val) === '[object String]';
-  }
-
-  /**
-   * Copyright 2025 Wingify Software Pvt. Ltd.
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *    http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  var LogLevelNumberEnum;
-  (function (LogLevelNumberEnum) {
-    LogLevelNumberEnum[LogLevelNumberEnum["TRACE"] = 0] = "TRACE";
-    LogLevelNumberEnum[LogLevelNumberEnum["DEBUG"] = 1] = "DEBUG";
-    LogLevelNumberEnum[LogLevelNumberEnum["INFO"] = 2] = "INFO";
-    LogLevelNumberEnum[LogLevelNumberEnum["WARN"] = 3] = "WARN";
-    LogLevelNumberEnum[LogLevelNumberEnum["ERROR"] = 4] = "ERROR";
-  })(LogLevelNumberEnum || (LogLevelNumberEnum = {}));
-  /**
-   * Manages logging transports and delegates logging messages to them based on configuration.
-   * Implements the IlogTransport interface.
-   */
-  class LogTransportManager {
-    /**
-     * Initializes the manager with a configuration object.
-     * @param {Record<string, any>} config - Configuration settings for the log manager.
-     */
-    constructor(config) {
-      this.transports = [];
-      this.config = config;
-    }
-    /**
-     * Adds a new transport to the manager.
-     * @param {Record<string, any>} transport - The transport object to be added.
-     */
-    addTransport(transport) {
-      this.transports.push(transport);
-    }
-    /**
-     * Determines if the log should be processed based on the transport and configuration levels.
-     * @param {string} transportLevel - The log level set for the transport.
-     * @param {string} configLevel - The log level set in the configuration.
-     * @returns {boolean} - Returns true if the log level is appropriate for logging, false otherwise.
-     */
-    shouldLog(transportLevel, configLevel) {
-      // Default to the most specific level available
-      // transportLevel = transportLevel || configLevel || this.config.level;
-      const targetLevel = LogLevelNumberEnum[transportLevel.toUpperCase()];
-      const desiredLevel = LogLevelNumberEnum[(configLevel || this.config.level).toUpperCase()];
-      return targetLevel >= desiredLevel;
-    }
-    /**
-     * Logs a message at TRACE level.
-     * @param {string} message - The message to log.
-     */
-    trace(message) {
-      this.log(LogLevelEnum.TRACE, message);
-    }
-    /**
-     * Logs a message at DEBUG level.
-     * @param {string} message - The message to log.
-     */
-    debug(message) {
-      this.log(LogLevelEnum.DEBUG, message);
-    }
-    /**
-     * Logs a message at INFO level.
-     * @param {string} message - The message to log.
-     */
-    info(message) {
-      this.log(LogLevelEnum.INFO, message);
-    }
-    /**
-     * Logs a message at WARN level.
-     * @param {string} message - The message to log.
-     */
-    warn(message) {
-      this.log(LogLevelEnum.WARN, message);
-    }
-    /**
-     * Logs a message at ERROR level.
-     * @param {string} message - The message to log.
-     */
-    error(message) {
-      this.log(LogLevelEnum.ERROR, message);
-    }
-    /**
-     * Delegates the logging of messages to the appropriate transports.
-     * @param {string} level - The level at which to log the message.
-     * @param {string} message - The message to log.
-     */
-    log(level, message) {
-      for (let i = 0; i < this.transports.length; i++) {
-        const logMessageBuilder = new LogMessageBuilder(this.config, this.transports[i]);
-        const formattedMessage = logMessageBuilder.formatMessage(level, message);
-        if (this.shouldLog(level, this.transports[i].level)) {
-          if (this.transports[i].log && isFunction(this.transports[i].log)) {
-            // Use custom log handler if available
-            this.transports[i].log(level, message);
-          } else {
-            // Otherwise, use the default log method
-            this.transports[i][level](formattedMessage);
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Copyright 2025 Wingify Software Pvt. Ltd.
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *    http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  /**
-   * LogManager class provides logging functionality with support for multiple transports.
-   * It is designed as a singleton to ensure a single instance throughout the application.
-   */
-  class LogManager extends Logger {
-    /**
-     * Constructor for LogManager.
-     * @param {Record<string, any>} config - Configuration object for LogManager.
-     */
-    constructor(config) {
-      super();
-      this.name = 'VWO Logger'; // Default logger name
-      this.requestId = new Date().getTime().toString(); // current timestamp in milliseconds
-      this.level = LogLevelEnum.ERROR; // Default logging level
-      this.prefix = 'VWO-SDK'; // Default prefix for log messages
-      this.config = config;
-      if (config.isAlwaysNewInstance || !LogManager.instance) {
-        LogManager.instance = this;
-        // Initialize configuration with defaults or provided values
-        this.config.name = config.name || this.name;
-        this.config.requestId = config.requestId || this.requestId;
-        this.config.level = config.level || this.level;
-        this.config.prefix = config.prefix || this.prefix;
-        this.config.dateTimeFormat = config.dateTimeFormat || this.dateTimeFormat;
-        this.transportManager = new LogTransportManager(this.config);
-        this.handleTransports();
-      }
-      return LogManager.instance;
-    }
-    dateTimeFormat() {
-      return new Date().toISOString(); // Default date-time format for log messages
-    }
-    /**
-     * Provides access to the singleton instance of LogManager.
-     * @returns {LogManager} The singleton instance.
-     */
-    static get Instance() {
-      return LogManager.instance;
-    }
-    /**
-     * Handles the initialization and setup of transports based on configuration.
-     */
-    handleTransports() {
-      this.addTransport(new ConsoleTransport({
-        level: this.config.level
-      }));
-    }
-    /**
-     * Adds a single transport to the LogManager.
-     * @param {Record<string, any>} transport - The transport object to add.
-     */
-    addTransport(transport) {
-      this.transportManager.addTransport(transport);
-    }
-    /**
-     * Adds multiple transports to the LogManager.
-     * @param {Array<Record<string, any>>} transports - The list of transport objects to add.
-     */
-    addTransports(transports) {
-      for (let i = 0; i < transports.length; i++) {
-        this.addTransport(transports[i]);
-      }
-    }
-    /**
-     * Logs a trace message.
-     * @param {string} message - The message to log at trace level.
-     */
-    trace(message) {
-      this.transportManager.log(LogLevelEnum.TRACE, message);
-    }
-    /**
-     * Logs a debug message.
-     * @param {string} message - The message to log at debug level.
-     */
-    debug(message) {
-      this.transportManager.log(LogLevelEnum.DEBUG, message);
-    }
-    /**
-     * Logs an informational message.
-     * @param {string} message - The message to log at info level.
-     */
-    info(message) {
-      this.transportManager.log(LogLevelEnum.INFO, message);
-    }
-    /**
-     * Logs a warning message.
-     * @param {string} message - The message to log at warn level.
-     */
-    warn(message) {
-      this.transportManager.log(LogLevelEnum.WARN, message);
-    }
-    /**
-     * Logs an error message.
-     * @param {string} message - The message to log at error level.
-     */
-    error(message) {
-      this.transportManager.log(LogLevelEnum.ERROR, message);
-    }
-  }
 
   /**
    * Copyright 2025 Wingify Software Pvt. Ltd.
@@ -504,7 +48,7 @@
    */
   function initLogger(config) {
     if (!logger) {
-      logger = new LogManager((config == null ? void 0 : config.logger) || {});
+      logger = new serviceLogger.LogManager((config == null ? void 0 : config.logger) || {});
     }
     return logger;
   }
@@ -516,7 +60,7 @@
    */
   function getLogger() {
     if (!logger) {
-      logger = new LogManager({
+      logger = new serviceLogger.LogManager({
         level: 'error'
       });
     }
@@ -604,7 +148,7 @@
           return '';
         }
         // If the value is a function, evaluate it
-        return isFunction(value) ? value() : value;
+        return utilDataType.isFunction(value) ? value() : value;
       });
     } catch (err) {
       return template; // Return the original template in case of an error
@@ -871,7 +415,7 @@
         logger.error(LogMessageEnum.VWO_GET_FLAG_FEATURE_KEY_REQUIRED);
         return;
       }
-      if (!isObject(stableUserContext) || !stableUserContext.id) {
+      if (!utilDataType.isObject(stableUserContext) || !stableUserContext.id) {
         logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, {
           hookName: HookEnum.VWO_GET_FLAG
         }));
@@ -912,7 +456,7 @@
   const useGetFlagVariables = flag => {
     const logger = getLogger();
     try {
-      if (!flag || !isObject(flag)) {
+      if (!flag || !utilDataType.isObject(flag)) {
         logger.error(LogMessageEnum.VWO_GET_FLAG_VARIABLES_FLAG_REQUIRED);
         return [];
       }
@@ -934,7 +478,7 @@
   const useGetFlagVariable = (flag, variableKey, defaultValue) => {
     const logger = getLogger();
     try {
-      if (!flag || !isObject(flag)) {
+      if (!flag || !utilDataType.isObject(flag)) {
         return defaultValue;
       }
       if (!variableKey) {
@@ -989,12 +533,12 @@
         }));
         return Promise.resolve({});
       }
-      if (!eventName || !isString(eventName)) {
+      if (!eventName || !utilDataType.isString(eventName)) {
         logger.error(LogMessageEnum.VWO_TRACK_EVENT_NAME_REQUIRED);
         return Promise.resolve({});
       }
       // Ensure userContext is valid
-      if (!userContext || !isObject(userContext) || !userContext.id) {
+      if (!userContext || !utilDataType.isObject(userContext) || !userContext.id) {
         logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, {
           hookName: HookEnum.VWO_TRACK_EVENT
         }));
@@ -1055,13 +599,13 @@
         }));
         return;
       }
-      if (!userContext || !isObject(userContext) || !userContext.id) {
+      if (!userContext || !utilDataType.isObject(userContext) || !userContext.id) {
         logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, {
           hookName: HookEnum.VWO_SET_ATTRIBUTE
         }));
         return;
       }
-      if (!attributeMap || !isObject(attributeMap) || Object.keys(attributeMap).length === 0) {
+      if (!attributeMap || !utilDataType.isObject(attributeMap) || Object.keys(attributeMap).length === 0) {
         logger.error(LogMessageEnum.VWO_SET_ATTRIBUTE_MAP_REQUIRED);
         return;
       }

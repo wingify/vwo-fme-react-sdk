@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { isObject } from './utils/DataTypeUtil';
+import { isObject } from '@wingify/util-data-type';
 import { getLogger } from './services/LoggerService';
 import { Flag } from 'vwo-fme-node-sdk';
 import { LogMessageEnum } from './enum/LogMessageEnum';

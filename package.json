@@ -1,6 +1,6 @@
 {
   "name": "vwo-fme-react-sdk",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "VWO React SDK for Feature Management and Experimentation",
   "source": "lib/index.ts",
   "main": "dist/vwo-fme-react-sdk.cjs.production.min.js",
@@ -54,7 +54,10 @@
     "NOTICE"
   ],
   "dependencies": {
-    "vwo-fme-node-sdk": "^1.18.0"
+    "@wingify/service-logger": "^0.1.0",
+    "@wingify/util-data-type": "^0.1.0",
+    "@wingify/util-check-license-header": "^0.1.0",
+    "vwo-fme-node-sdk": "^1.19.0"
   },
   "peerDependencies": {
     "react": ">=16.8.0"

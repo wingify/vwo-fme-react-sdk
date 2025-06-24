@@ -17,7 +17,7 @@
 /**
  * logger.ts - Global Logger Singleton
  */
-import { LogManager } from '../logger/core/LogManager';
+import { LogManager } from '@wingify/service-logger';
 
 let logger: LogManager | null = null;
 

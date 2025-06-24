@@ -15,7 +15,7 @@
  */
 
 import { useVWOContext } from './VWOContext';
-import { isObject } from './utils/DataTypeUtil';
+import { isObject } from '@wingify/util-data-type';
 import { getLogger } from './services/LoggerService';
 import { LogMessageEnum } from './enum/LogMessageEnum';
 import { buildMessage } from './utils/LogMessageUtil';

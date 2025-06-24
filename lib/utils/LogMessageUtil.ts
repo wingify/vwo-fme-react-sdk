@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { isFunction } from './DataTypeUtil';
+import { isFunction } from '@wingify/util-data-type';
 
 const nargs = /\{([0-9a-zA-Z_]+)\}/g;
 
