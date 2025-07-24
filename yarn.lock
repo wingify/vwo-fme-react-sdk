@@ -9435,10 +9435,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vwo-fme-node-sdk@^1.19.0:
-  version "1.19.0"
-  resolved "https://registry.npmjs.org/vwo-fme-node-sdk/-/vwo-fme-node-sdk-1.19.0.tgz"
-  integrity sha512-8G3JB28HIpg60j8Ectb9V3P75ZoeIgV5s8arPgimOav213KcCr1fJO/qAAMFMUcAKpcgvCi2j4frjTiW2mEchA==
+vwo-fme-node-sdk@^1.23.0:
+  version "1.23.0"
+  resolved "https://registry.npmjs.org/vwo-fme-node-sdk/-/vwo-fme-node-sdk-1.23.0.tgz#120c319d2ba8413aef845bbd8334c60338815ea3"
+  integrity sha512-qEywkqF4j81UFTo691qWHJd30s2YO74eYkGGPxLxcrt2ajYuvRcOl3LCRNkjzh+w/6dfJarbrtvO7Xrh4VvElw==
   dependencies:
     murmurhash "^2.0.1"
     superstruct "^0.14.x"

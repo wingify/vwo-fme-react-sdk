@@ -5,9 +5,108 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-07-24
+
+### Added
+
+- Enhanced storage configuration options for browser environments with new features:
+
+  - Added custom `ttl` (Time To Live) option to control how long settings remain valid in storage
+  - Added `alwaysUseCachedSettings` option to always use cached settings regardless of TTL
+  - Default TTL remains 2 hours if not specified
+
+  ```jsx
+  const vwoConfig = {
+    accountId: 'VWO_ACCOUNT_ID',
+    sdkKey: 'VWO_SDK_KEY',
+
+    clientStorage: {
+      key: 'vwo_data', // defaults to vwo_fme_settings
+      provider: sessionStorage, // defaults to localStorage
+      isDisabled: false, // defaults to false
+      alwaysUseCachedSettings: true, // defaults to false
+      ttl: 3600000, // 1 hour in milliseconds, defaults to 2 hours
+    },
+  };
+
+  <VWOProvider config={vwoConfig} fallbackComponent={fallbackComponent}>
+    <YourComponent />
+  </VWOProvider>;
+  ```
+
+  These new options provide more control over how settings are cached and refreshed:
+
+  - When `alwaysUseCachedSettings` is true, the SDK will always use cached settings if available, regardless of TTL
+  - Custom `ttl` allows you to control how frequently settings are refreshed from the server
+  - Settings are still updated in the background to keep the cache fresh
+
+  Read more [here](https://developers.vwo.com/v2/docs/fme-react-cache-settings)
+
+- Added configurable retry mechanism for network requests with partial override support. You can now customize retry behavior by passing a `retryConfig` in the `network` options:
+
+  ```jsx
+  const vwoConfig = {
+    accountId: 'VWO_ACCOUNT_ID',
+    sdkKey: 'VWO_SDK_KEY',
+
+    retryConfig: {
+      shouldRetry: true, // Turn retries on/off (default: true)
+      maxRetries: 3, // How many times to retry (default: 3)
+      initialDelay: 2, // First retry after 2 seconds (default: 2)
+      backoffMultiplier: 2, // Double the delay each time (delays: 2s, 4s, 8s)
+    },
+  };
+
+  <VWOProvider config={vwoConfig} fallbackComponent={fallbackComponent}>
+    <YourComponent />
+  </VWOProvider>;
+  ```
+
+- Added support for redirecting all network calls through a custom proxy URL for browser environments. This feature allows users to route all SDK network requests (settings, tracking, etc.) through their own proxy server. This is particularly useful for bypassing ad-blockers that may interfere with VWO's default network requests.
+
+  ```jsx
+  const vwoConfig = {
+    accountId: 'VWO_ACCOUNT_ID',
+    sdkKey: 'VWO_SDK_KEY',
+
+    // All network calls will be routed through this URL
+    proxyUrl: 'https://your-proxy-server.com',
+  };
+
+  <VWOProvider config={vwoConfig} fallbackComponent={fallbackComponent}>
+    <YourComponent />
+  </VWOProvider>;
+  ```
+
+- Added support for polling intervals to periodically fetch and update settings:
+
+  - If `pollInterval` is set in options (must be >= 1000 milliseconds), that interval will be used
+  - If `pollInterval` is configured in VWO application settings, that will be used
+  - If neither is set, defaults to 10 minute polling interval
+
+  Example usage:
+
+  ```jsx
+  const vwoConfig = {
+    accountId: 'VWO_ACCOUNT_ID',
+    sdkKey: 'VWO_SDK_KEY',
+
+    // Set the poll interval to 60 seconds,
+    pollInterval: 60000,
+  };
+
+  <VWOProvider config={vwoConfig} fallbackComponent={fallbackComponent}>
+    <YourComponent />
+  </VWOProvider>;
+  ```
+
+### Fixed
+
+- Updated regex in `addIsGatewayServiceRequiredFlag` method to remove unsupported lookbehind and named capture groups, ensuring compatibility with older browsers like Safari 16.3 (`SyntaxError: Invalid regular expression: invalid group specifier name`).
+
 ## [1.4.0] - 2025-06-12
 
-###
+### Changed
 
 - Replaced the copy-pasted modules with the monorepo VWO JavaScript packages @wingify/service-logger and @wingify/util-data-type as dependencies. This helps reduce the SDK size by approximately 40%.
 - Updated `vwo-fme-node-sdk` dependency version:
@@ -30,8 +129,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 import { IVWOOptions, LogLevelEnum } from 'vwo-fme-react-sdk';
 
 const vwoConfig: IVWOOptions = {
-  sdkKey: '32-alpha-numeric-sdk-key', // SDK Key
-  accountId: '123456', // VWO Account ID
+  accountId: 'VWO_ACCOUNT_ID',
+  sdkKey: 'VWO_SDK_KEY',
+
   logger: {
     level: LogLevelEnum.DEBUG
   },
@@ -169,8 +269,9 @@ const vwoConfig: IVWOOptions = {
   import { VWOProvider } from 'vwo-fme-react-sdk';
 
   const vwoConfig = {
-    sdkKey: '32-alpha-numeric-sdk-key', // Your VWO SDK Key
-    accountId: '123456', // Your VWO Account ID
+    accountId: 'VWO_ACCOUNT_ID',
+    sdkKey: 'VWO_SDK_KEY',
+
     logger: {
       level: 'debug', // Optional log level for debugging
     },
