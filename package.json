@@ -1,6 +1,6 @@
 {
   "name": "vwo-fme-react-sdk",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "VWO React SDK for Feature Management and Experimentation",
   "source": "lib/index.ts",
   "main": "dist/vwo-fme-react-sdk.cjs.production.min.js",
@@ -57,7 +57,7 @@
     "@wingify/service-logger": "^0.1.0",
     "@wingify/util-data-type": "^0.1.0",
     "@wingify/util-check-license-header": "^0.1.0",
-    "vwo-fme-node-sdk": "^1.23.2"
+    "vwo-fme-node-sdk": "^1.23.3"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
