@@ -18,7 +18,7 @@ import { isObject } from '@wingify/util-data-type';
 import { getLogger } from './services/LoggerService';
 import { Flag } from 'vwo-fme-node-sdk';
 import { LogMessageEnum } from './enum/LogMessageEnum';
-import { buildMessage } from './utils/LogMessageUtil';
+import { logHookError } from './utils/LogMessageUtil';
 
 /**
  * Hook to get all variables from a flag
@@ -26,8 +26,11 @@ import { buildMessage } from './utils/LogMessageUtil';
  * @returns The variables from the flag
  */
 export const useGetFlagVariables = (flag: Flag): Array<Record<string, unknown>> => {
-  const logger = getLogger();
+  let logger;
+
   try {
+    logger = getLogger();
+
     if (!flag || !isObject(flag)) {
       logger.error(LogMessageEnum.VWO_GET_FLAG_VARIABLES_FLAG_REQUIRED);
       return [];
@@ -35,7 +38,7 @@ export const useGetFlagVariables = (flag: Flag): Array<Record<string, unknown>> 
 
     return flag.getVariables();
   } catch (error) {
-    logger.error(buildMessage(LogMessageEnum.VWO_GET_FLAG_VARIABLES_ERROR, { error }));
+    logHookError(logger, { error }, LogMessageEnum.VWO_GET_FLAG_VARIABLES_ERROR);
     return [];
   }
 };
@@ -48,8 +51,10 @@ export const useGetFlagVariables = (flag: Flag): Array<Record<string, unknown>> 
  * @returns The value of the variable
  */
 export const useGetFlagVariable = <T>(flag: Flag, variableKey: string, defaultValue: T): T => {
-  const logger = getLogger();
+  let logger;
+
   try {
+    logger = getLogger();
     if (!flag || !isObject(flag)) {
       return defaultValue;
     }
@@ -61,7 +66,7 @@ export const useGetFlagVariable = <T>(flag: Flag, variableKey: string, defaultVa
 
     return flag.getVariable(variableKey, defaultValue);
   } catch (error) {
-    logger.error(buildMessage(LogMessageEnum.VWO_GET_FLAG_VARIABLE_ERROR, { error }));
+    logHookError(logger, { error }, LogMessageEnum.VWO_GET_FLAG_VARIABLE_ERROR);
     return defaultValue;
   }
 };

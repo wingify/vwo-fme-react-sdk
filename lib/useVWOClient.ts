@@ -18,7 +18,7 @@ import { IVWOClient } from 'vwo-fme-node-sdk';
 import { getLogger } from './services/LoggerService';
 import { useVWOContext } from './VWOContext';
 import { LogMessageEnum } from './enum/LogMessageEnum';
-import { buildMessage } from './utils/LogMessageUtil';
+import { buildMessage, logHookError } from './utils/LogMessageUtil';
 import { HookEnum } from './enum/HookEnum';
 const defaultVwoClientResult: VWOClientResult = {
   vwoClient: null,
@@ -35,9 +35,11 @@ export interface VWOClientResult {
  * @returns VWO SDK client instance
  */
 export const useVWOClient = (): VWOClientResult => {
-  const logger = getLogger();
+  let logger;
 
   try {
+    logger = getLogger();
+
     const context = useVWOContext();
 
     if (!context) {
@@ -54,7 +56,7 @@ export const useVWOClient = (): VWOClientResult => {
       isReady: true,
     };
   } catch (error) {
-    logger.error(buildMessage(LogMessageEnum.HOOK_ERROR, { error, hookName: HookEnum.VWO_CLIENT }));
+    logHookError(logger, { error, hookName: HookEnum.VWO_CLIENT }, LogMessageEnum.HOOK_ERROR);
     return defaultVwoClientResult;
   }
 };

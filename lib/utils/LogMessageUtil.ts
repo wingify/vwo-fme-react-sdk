@@ -48,3 +48,18 @@ export function buildMessage(template: string, data: Record<string, any> = {}): 
     return template; // Return the original template in case of an error
   }
 }
+
+/**
+ * Logs an error message using the provided logger after building the message with template data.
+ *
+ * @param {any} logger - The logger instance used to log the error message.
+ * @param {any} obj - An object containing data used to replace placeholders in the message template.
+ * @param {string} message - The message template containing placeholders to be replaced with values from the obj parameter.
+ */
+export function logHookError(logger: any, obj: Record<string, any> = {}, message: string) {
+  try {
+    logger.error(buildMessage(message, obj));
+  } catch (error) {
+    console.error(`Error logging hook. Error: ${error}`);
+  }
+}

@@ -21,3 +21,11 @@
  * @returns {string} The constructed message with all placeholders replaced by their corresponding values from the data object.
  */
 export declare function buildMessage(template: string, data?: Record<string, any>): string;
+/**
+ * Logs an error message using the provided logger after building the message with template data.
+ *
+ * @param {any} logger - The logger instance used to log the error message.
+ * @param {any} obj - An object containing data used to replace placeholders in the message template.
+ * @param {string} message - The message template containing placeholders to be replaced with values from the obj parameter.
+ */
+export declare function logHookError(logger: any, obj: Record<string, any>, message: string): void;

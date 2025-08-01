@@ -20,7 +20,7 @@ import { getLogger } from './services/LoggerService';
 import { isObject } from '@wingify/util-data-type';
 import { Flag, IVWOContextModel } from 'vwo-fme-node-sdk';
 import { LogMessageEnum } from './enum/LogMessageEnum';
-import { buildMessage } from './utils/LogMessageUtil';
+import { buildMessage, logHookError } from './utils/LogMessageUtil';
 import { HookEnum } from './enum/HookEnum';
 export interface IFlag {
   flag: Flag;
@@ -68,31 +68,30 @@ export const useGetFlag = (featureKey: string, context?: IVWOContextModel): IFla
 
       setUserContext(stableUserContext);
     } catch (error) {
-      logger.error(
-        buildMessage(LogMessageEnum.VWO_GET_FLAG_ERROR, {
-          featureKey,
-          error,
-        }),
-      );
+      logHookError(logger, { error, featureKey }, LogMessageEnum.VWO_GET_FLAG_ERROR);
     } finally {
       setIsLoading(false);
     }
   }, [featureKey, stableUserContext, isReady]);
 
   useEffect(() => {
-    if (!featureKey) {
-      logger.error(LogMessageEnum.VWO_GET_FLAG_FEATURE_KEY_REQUIRED);
-      return;
-    }
+    try {
+      if (!featureKey) {
+        logger.error(LogMessageEnum.VWO_GET_FLAG_FEATURE_KEY_REQUIRED);
+        return;
+      }
 
-    if (!isObject(stableUserContext) || !stableUserContext.id) {
-      logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, { hookName: HookEnum.VWO_GET_FLAG }));
-      return;
-    }
-    // Check if all required dependencies are available
-    // stableUserContext && stableUserContext.id - check is added to handle the case where VWOProvider is not initialized
-    if (isReady && vwoClient && stableUserContext) {
-      getFlag();
+      if (!isObject(stableUserContext) || !stableUserContext.id) {
+        logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, { hookName: HookEnum.VWO_GET_FLAG }));
+        return;
+      }
+      // Check if all required dependencies are available
+      // stableUserContext && stableUserContext.id - check is added to handle the case where VWOProvider is not initialized
+      if (isReady && vwoClient && stableUserContext) {
+        getFlag();
+      }
+    } catch (error) {
+      logHookError(logger, { error, featureKey }, LogMessageEnum.VWO_GET_FLAG_ERROR);
     }
   }, [featureKey, JSON.stringify(stableUserContext), isReady]);
 

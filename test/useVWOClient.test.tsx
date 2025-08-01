@@ -18,7 +18,6 @@ import { renderHook } from '@testing-library/react-hooks';
 import { useVWOClient } from '../lib/useVWOClient';
 import { getLogger } from '../lib/services/LoggerService';
 import { useVWOContext } from '../lib/VWOContext';
-import React from 'react';
 import { HookEnum } from '../lib/enum/HookEnum';
 import { buildMessage } from '../lib/utils/LogMessageUtil';
 import { LogMessageEnum } from '../lib/enum/LogMessageEnum';
@@ -31,7 +30,7 @@ const mockLogger = {
   info: jest.fn(),
 };
 
-const mockVwoClient = { 
+const mockVwoClient = {
   getFlag: jest.fn(),
   track: jest.fn(),
   getVariable: jest.fn()

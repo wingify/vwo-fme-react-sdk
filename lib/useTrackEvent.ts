@@ -18,8 +18,9 @@ import { getLogger } from './services/LoggerService';
 import { useVWOContext } from './VWOContext';
 import { isObject, isString } from '@wingify/util-data-type';
 import { LogMessageEnum } from './enum/LogMessageEnum';
-import { buildMessage } from './utils/LogMessageUtil';
+import { buildMessage, logHookError } from './utils/LogMessageUtil';
 import { HookEnum } from './enum/HookEnum';
+import { IVWOClient, IVWOContextModel } from 'vwo-fme-node-sdk';
 /**
  * Interface for the return type of useTrackEvent hook
  */
@@ -36,11 +37,20 @@ export interface ITrackEvent {
  * @returns {ITrackEvent} Object containing trackEvent function and isReady boolean
  */
 export const useTrackEvent = (): ITrackEvent => {
-  const logger = getLogger();
+  let logger;
+  let vwoClient: IVWOClient;
+  let userContext: IVWOContextModel;
+  let isReady: boolean;
 
-  // Fetch the vwoClient and userContext from the context
-  const { vwoClient, userContext, isReady } = useVWOContext();
+  try {
+    logger = getLogger();
 
+    // Fetch the vwoClient and userContext from the context
+    ({ vwoClient, userContext, isReady } = useVWOContext());
+  } catch (error) {
+    logHookError(logger, { error }, LogMessageEnum.VWO_TRACK_EVENT_ERROR);
+    return { trackEvent: () => Promise.resolve({}), isReady: false };
+  }
   /**
    * trackEvent function to be returned by the hook
    * @param eventName - The name of the event to track
@@ -50,29 +60,28 @@ export const useTrackEvent = (): ITrackEvent => {
     eventName: string,
     eventProperties: Record<string, string | number | boolean> = {},
   ): Promise<Record<string, boolean>> => {
-    if (!isReady) {
-      logger.error(buildMessage(LogMessageEnum.VWO_CLIENT_MISSING, { hookName: HookEnum.VWO_TRACK_EVENT }));
-      return Promise.resolve({});
-    }
-    if (!eventName || !isString(eventName)) {
-      logger.error(LogMessageEnum.VWO_TRACK_EVENT_NAME_REQUIRED);
-      return Promise.resolve({});
-    }
-
-    // Ensure userContext is valid
-    if (!userContext || !isObject(userContext) || !userContext.id) {
-      logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, { hookName: HookEnum.VWO_TRACK_EVENT }));
-      return Promise.resolve({});
-    }
-
     try {
+      if (!isReady) {
+        logger.error(buildMessage(LogMessageEnum.VWO_CLIENT_MISSING, { hookName: HookEnum.VWO_TRACK_EVENT }));
+        return Promise.resolve({});
+      }
+      if (!eventName || !isString(eventName)) {
+        logger.error(LogMessageEnum.VWO_TRACK_EVENT_NAME_REQUIRED);
+        return Promise.resolve({});
+      }
+
+      // Ensure userContext is valid
+      if (!userContext || !isObject(userContext) || !userContext.id) {
+        logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, { hookName: HookEnum.VWO_TRACK_EVENT }));
+        return Promise.resolve({});
+      }
+
       return await vwoClient.trackEvent(eventName, userContext, eventProperties);
     } catch (error) {
-      logger.error(
-        buildMessage(LogMessageEnum.VWO_TRACK_EVENT_ERROR, {
-          eventName,
-          error: error instanceof Error ? error.message : error,
-        }),
+      logHookError(
+        logger,
+        { error: error instanceof Error ? error.message : error, eventName },
+        LogMessageEnum.VWO_TRACK_EVENT_ERROR,
       );
       return Promise.resolve({});
     }

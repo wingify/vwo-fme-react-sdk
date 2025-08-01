@@ -19,7 +19,7 @@ import { init, IVWOContextModel, IVWOClient, IVWOOptions } from 'vwo-fme-node-sd
 import { VWOContext } from './VWOContext';
 import { initLogger } from './services/LoggerService';
 import { LogMessageEnum } from './enum/LogMessageEnum';
-import { buildMessage } from './utils/LogMessageUtil';
+import { logHookError } from './utils/LogMessageUtil';
 
 export interface VWOProviderWithClient {
   client: IVWOClient;
@@ -39,51 +39,54 @@ export type IVWOProvider = VWOProviderWithClient | VWOProviderWithConfig;
 
 /**
  * VWOProvider component to provide VWO client and configuration context to child components.
- * 
+ *
  * @param props - The props for the VWOProvider component.
  * @returns A React element that provides the VWO client and configuration context to child components.
  */
 export function VWOProvider(props: IVWOProvider): React.ReactElement {
   const { userContext, children, fallbackComponent } = props;
+
   const client = 'client' in props ? props.client : null;
   const config = 'config' in props ? props.config : null;
-  
+
   const [vwoClient, setVwoClient] = useState<IVWOClient | null>(client || null);
   const [context, setContext] = useState<IVWOContextModel | null>(userContext || null);
   const [isReady, setIsReady] = useState<boolean>(false);
 
-  const logger = initLogger(client?.options || config);
   const memoizedConfig = useMemo(() => config || client?.options, []);
 
+  let logger;
   // Initialize the VWO SDK instance only once when the component mounts or if config is updated
   useEffect(() => {
-    if(config && vwoClient) {
-      logger.warn(LogMessageEnum.VWO_PROVIDER_CLIENT_CONFIG_WARNING);
-    }
-    if (vwoClient) {
-      setIsReady(true);
-      return;
-    } else if (!config) {
-      logger.error(LogMessageEnum.VWO_PROVIDER_CONFIG_REQUIRED);
-      return;
-    }
+    try {
+      logger = initLogger(client?.options || config);
 
-    const initializeVWO = async () => {
-      try {
+      if(config && vwoClient) {
+        logger.warn(LogMessageEnum.VWO_PROVIDER_CLIENT_CONFIG_WARNING);
+      }
+      if (vwoClient) {
+        setIsReady(true);
+        return;
+      } else if (!config) {
+        logger.error(LogMessageEnum.VWO_PROVIDER_CONFIG_REQUIRED);
+        return;
+      }
+
+      const initializeVWO = async () => {
         if (!vwoClient && config) {
           // Initialize the VWO SDK instance if vwoClient is not already initialized
           const instance = await init(config);
           setVwoClient(instance);
           setIsReady(true);
         }
-      } catch (error) {
-        logger.error(buildMessage(LogMessageEnum.VWO_SDK_INITIALIZATION_FAILED, { error }));
-      }
-    };
+      };
 
-    // Only initialize once
-    if (!vwoClient && config) {
-      initializeVWO();
+      // Initialized only once
+      if (!vwoClient && config) {
+        initializeVWO();
+      }
+    } catch (error) {
+      logHookError(logger, error, LogMessageEnum.VWO_SDK_INITIALIZATION_FAILED);
     }
   }, [memoizedConfig]); // Re-run only when config changes
 

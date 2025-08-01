@@ -18,8 +18,10 @@ import { useVWOContext } from './VWOContext';
 import { isObject } from '@wingify/util-data-type';
 import { getLogger } from './services/LoggerService';
 import { LogMessageEnum } from './enum/LogMessageEnum';
-import { buildMessage } from './utils/LogMessageUtil';
+import { buildMessage, logHookError } from './utils/LogMessageUtil';
 import { HookEnum } from './enum/HookEnum';
+import { IVWOClient } from 'vwo-fme-node-sdk';
+import { IVWOContextModel } from 'vwo-fme-node-sdk';
 
 /**
  * Interface for the return type of useSetAttribute hook
@@ -34,39 +36,49 @@ export interface ISetAttribute {
  * @returns {ISetAttribute} Object containing setAttribute function and isReady boolean
  */
 export const useSetAttribute = (): ISetAttribute => {
-  const logger = getLogger();
+  let logger;
+  let vwoClient: IVWOClient;
+  let userContext: IVWOContextModel;
+  let isReady: boolean;
 
-  // Fetch the vwoClient and userContext from the context
-  const { vwoClient, userContext, isReady } = useVWOContext();
+  try {
+    logger = getLogger();
 
+    // Fetch the vwoClient and userContext from the context
+    ({ vwoClient, userContext, isReady } = useVWOContext());
+  } catch (error) {
+    logHookError(logger, { error }, LogMessageEnum.VWO_SET_ATTRIBUTE_ERROR);
+    return { setAttribute: () => {}, isReady: false };
+  }
   /**
    * Function to set user attributes dynamically
    * @param attributeMap - The map of attributes to set
    */
   const setAttribute = (attributeMap: Record<string, string | number | boolean>): void => {
-    // Return a no-op function if vwoClient or userContext is not available
-    if (!isReady) {
-      logger.error(buildMessage(LogMessageEnum.VWO_CLIENT_MISSING, { hookName: HookEnum.VWO_SET_ATTRIBUTE }));
-      return;
-    }
-    if (!userContext || !isObject(userContext) || !userContext.id) {
-      logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, { hookName: HookEnum.VWO_SET_ATTRIBUTE }));
-      return;
-    }
-    if (!attributeMap || !isObject(attributeMap) || Object.keys(attributeMap).length === 0) {
-      logger.error(LogMessageEnum.VWO_SET_ATTRIBUTE_MAP_REQUIRED);
-      return;
-    }
-
     try {
+      // Return a no-op function if vwoClient or userContext is not available
+      if (!isReady) {
+        logger.error(buildMessage(LogMessageEnum.VWO_CLIENT_MISSING, { hookName: HookEnum.VWO_SET_ATTRIBUTE }));
+        return;
+      }
+      if (!userContext || !isObject(userContext) || !userContext.id) {
+        logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, { hookName: HookEnum.VWO_SET_ATTRIBUTE }));
+        return;
+      }
+      if (!attributeMap || !isObject(attributeMap) || Object.keys(attributeMap).length === 0) {
+        logger.error(LogMessageEnum.VWO_SET_ATTRIBUTE_MAP_REQUIRED);
+        return;
+      }
+
       vwoClient.setAttribute(attributeMap, userContext); // Set the attributes
+
       logger.info(
         buildMessage(LogMessageEnum.VWO_SET_ATTRIBUTE_SUCCESS, {
           attributes: JSON.stringify(attributeMap),
         }),
       );
     } catch (error) {
-      logger.error(buildMessage(LogMessageEnum.VWO_SET_ATTRIBUTE_ERROR, { error }));
+      logHookError(logger, { error }, LogMessageEnum.VWO_SET_ATTRIBUTE_ERROR);
     }
   };
 

@@ -73,7 +73,7 @@ describe('useTrackEvent', () => {
   it('should log error if vwoClient is not available', async () => {
     (useVWOContext as jest.Mock).mockReturnValue({ ...mockVWOContext, isReady: false });
     const { result } = renderHook(() => useTrackEvent());
-    
+
     expect(result.current.isReady).toBe(false);
     const response = await result.current.trackEvent('eventName', {});
     expect(response).toEqual({});

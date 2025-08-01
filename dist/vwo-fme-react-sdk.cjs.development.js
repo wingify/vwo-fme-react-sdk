@@ -158,6 +158,20 @@ function buildMessage(template, data = {}) {
     return template; // Return the original template in case of an error
   }
 }
+/**
+ * Logs an error message using the provided logger after building the message with template data.
+ *
+ * @param {any} logger - The logger instance used to log the error message.
+ * @param {any} obj - An object containing data used to replace placeholders in the message template.
+ * @param {string} message - The message template containing placeholders to be replaced with values from the obj parameter.
+ */
+function logHookError(logger, obj = {}, message) {
+  try {
+    logger.error(buildMessage(message, obj));
+  } catch (error) {
+    console.error(`Error logging hook. Error: ${error}`);
+  }
+}
 
 /**
  * Copyright 2025 Wingify Software Pvt. Ltd.
@@ -207,8 +221,9 @@ const VWOContext = /*#__PURE__*/React.createContext({
   isReady: false
 });
 const useVWOContext = () => {
-  const logger = getLogger();
+  let logger;
   try {
+    logger = getLogger();
     // Fetch the context
     const context = React.useContext(VWOContext);
     // If the context is not found, throw an error
@@ -220,10 +235,10 @@ const useVWOContext = () => {
     }
     return context;
   } catch (error) {
-    logger.error(buildMessage(LogMessageEnum.HOOK_ERROR, {
+    logHookError(logger, {
       error,
       hookName: HookEnum.VWO_CONTEXT
-    }));
+    }, LogMessageEnum.HOOK_ERROR);
     return null;
   }
 };
@@ -260,37 +275,36 @@ function VWOProvider(props) {
   const [vwoClient, setVwoClient] = React.useState(client || null);
   const [context, setContext] = React.useState(userContext || null);
   const [isReady, setIsReady] = React.useState(false);
-  const logger = initLogger((client == null ? void 0 : client.options) || config);
   const memoizedConfig = React.useMemo(() => config || (client == null ? void 0 : client.options), []);
+  let logger;
   // Initialize the VWO SDK instance only once when the component mounts or if config is updated
   React.useEffect(() => {
-    if (config && vwoClient) {
-      logger.warn(LogMessageEnum.VWO_PROVIDER_CLIENT_CONFIG_WARNING);
-    }
-    if (vwoClient) {
-      setIsReady(true);
-      return;
-    } else if (!config) {
-      logger.error(LogMessageEnum.VWO_PROVIDER_CONFIG_REQUIRED);
-      return;
-    }
-    const initializeVWO = async () => {
-      try {
+    try {
+      logger = initLogger((client == null ? void 0 : client.options) || config);
+      if (config && vwoClient) {
+        logger.warn(LogMessageEnum.VWO_PROVIDER_CLIENT_CONFIG_WARNING);
+      }
+      if (vwoClient) {
+        setIsReady(true);
+        return;
+      } else if (!config) {
+        logger.error(LogMessageEnum.VWO_PROVIDER_CONFIG_REQUIRED);
+        return;
+      }
+      const initializeVWO = async () => {
         if (!vwoClient && config) {
           // Initialize the VWO SDK instance if vwoClient is not already initialized
           const instance = await vwoFmeNodeSdk.init(config);
           setVwoClient(instance);
           setIsReady(true);
         }
-      } catch (error) {
-        logger.error(buildMessage(LogMessageEnum.VWO_SDK_INITIALIZATION_FAILED, {
-          error
-        }));
+      };
+      // Initialized only once
+      if (!vwoClient && config) {
+        initializeVWO();
       }
-    };
-    // Only initialize once
-    if (!vwoClient && config) {
-      initializeVWO();
+    } catch (error) {
+      logHookError(logger, error, LogMessageEnum.VWO_SDK_INITIALIZATION_FAILED);
     }
   }, [memoizedConfig]); // Re-run only when config changes
   return React__default.createElement(VWOContext.Provider, {
@@ -327,8 +341,9 @@ const defaultVwoClientResult = {
  * @returns VWO SDK client instance
  */
 const useVWOClient = () => {
-  const logger = getLogger();
+  let logger;
   try {
+    logger = getLogger();
     const context = useVWOContext();
     if (!context) {
       logger.error(buildMessage(LogMessageEnum.INVALID_HOOK_USAGE, {
@@ -344,10 +359,10 @@ const useVWOClient = () => {
       isReady: true
     };
   } catch (error) {
-    logger.error(buildMessage(LogMessageEnum.HOOK_ERROR, {
+    logHookError(logger, {
       error,
       hookName: HookEnum.VWO_CLIENT
-    }));
+    }, LogMessageEnum.HOOK_ERROR);
     return defaultVwoClientResult;
   }
 };
@@ -406,29 +421,36 @@ const useGetFlag = (featureKey, context) => {
       setFlag(result);
       setUserContext(stableUserContext);
     } catch (error) {
-      logger.error(buildMessage(LogMessageEnum.VWO_GET_FLAG_ERROR, {
-        featureKey,
-        error
-      }));
+      logHookError(logger, {
+        error,
+        featureKey
+      }, LogMessageEnum.VWO_GET_FLAG_ERROR);
     } finally {
       setIsLoading(false);
     }
   }, [featureKey, stableUserContext, isReady]);
   React.useEffect(() => {
-    if (!featureKey) {
-      logger.error(LogMessageEnum.VWO_GET_FLAG_FEATURE_KEY_REQUIRED);
-      return;
-    }
-    if (!utilDataType.isObject(stableUserContext) || !stableUserContext.id) {
-      logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, {
-        hookName: HookEnum.VWO_GET_FLAG
-      }));
-      return;
-    }
-    // Check if all required dependencies are available
-    // stableUserContext && stableUserContext.id - check is added to handle the case where VWOProvider is not initialized
-    if (isReady && vwoClient && stableUserContext) {
-      getFlag();
+    try {
+      if (!featureKey) {
+        logger.error(LogMessageEnum.VWO_GET_FLAG_FEATURE_KEY_REQUIRED);
+        return;
+      }
+      if (!utilDataType.isObject(stableUserContext) || !stableUserContext.id) {
+        logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, {
+          hookName: HookEnum.VWO_GET_FLAG
+        }));
+        return;
+      }
+      // Check if all required dependencies are available
+      // stableUserContext && stableUserContext.id - check is added to handle the case where VWOProvider is not initialized
+      if (isReady && vwoClient && stableUserContext) {
+        getFlag();
+      }
+    } catch (error) {
+      logHookError(logger, {
+        error,
+        featureKey
+      }, LogMessageEnum.VWO_GET_FLAG_ERROR);
     }
   }, [featureKey, JSON.stringify(stableUserContext), isReady]);
   return {
@@ -458,17 +480,18 @@ const useGetFlag = (featureKey, context) => {
  * @returns The variables from the flag
  */
 const useGetFlagVariables = flag => {
-  const logger = getLogger();
+  let logger;
   try {
+    logger = getLogger();
     if (!flag || !utilDataType.isObject(flag)) {
       logger.error(LogMessageEnum.VWO_GET_FLAG_VARIABLES_FLAG_REQUIRED);
       return [];
     }
     return flag.getVariables();
   } catch (error) {
-    logger.error(buildMessage(LogMessageEnum.VWO_GET_FLAG_VARIABLES_ERROR, {
+    logHookError(logger, {
       error
-    }));
+    }, LogMessageEnum.VWO_GET_FLAG_VARIABLES_ERROR);
     return [];
   }
 };
@@ -480,8 +503,9 @@ const useGetFlagVariables = flag => {
  * @returns The value of the variable
  */
 const useGetFlagVariable = (flag, variableKey, defaultValue) => {
-  const logger = getLogger();
+  let logger;
   try {
+    logger = getLogger();
     if (!flag || !utilDataType.isObject(flag)) {
       return defaultValue;
     }
@@ -491,9 +515,9 @@ const useGetFlagVariable = (flag, variableKey, defaultValue) => {
     }
     return flag.getVariable(variableKey, defaultValue);
   } catch (error) {
-    logger.error(buildMessage(LogMessageEnum.VWO_GET_FLAG_VARIABLE_ERROR, {
+    logHookError(logger, {
       error
-    }));
+    }, LogMessageEnum.VWO_GET_FLAG_VARIABLE_ERROR);
     return defaultValue;
   }
 };
@@ -518,43 +542,57 @@ const useGetFlagVariable = (flag, variableKey, defaultValue) => {
  * @returns {ITrackEvent} Object containing trackEvent function and isReady boolean
  */
 const useTrackEvent = () => {
-  const logger = getLogger();
-  // Fetch the vwoClient and userContext from the context
-  const {
-    vwoClient,
-    userContext,
-    isReady
-  } = useVWOContext();
+  let logger;
+  let vwoClient;
+  let userContext;
+  let isReady;
+  try {
+    logger = getLogger();
+    // Fetch the vwoClient and userContext from the context
+    ({
+      vwoClient,
+      userContext,
+      isReady
+    } = useVWOContext());
+  } catch (error) {
+    logHookError(logger, {
+      error
+    }, LogMessageEnum.VWO_TRACK_EVENT_ERROR);
+    return {
+      trackEvent: () => Promise.resolve({}),
+      isReady: false
+    };
+  }
   /**
    * trackEvent function to be returned by the hook
    * @param eventName - The name of the event to track
    * @param eventProperties - The properties of the event (optional)
    */
   const trackEvent = async (eventName, eventProperties = {}) => {
-    if (!isReady) {
-      logger.error(buildMessage(LogMessageEnum.VWO_CLIENT_MISSING, {
-        hookName: HookEnum.VWO_TRACK_EVENT
-      }));
-      return Promise.resolve({});
-    }
-    if (!eventName || !utilDataType.isString(eventName)) {
-      logger.error(LogMessageEnum.VWO_TRACK_EVENT_NAME_REQUIRED);
-      return Promise.resolve({});
-    }
-    // Ensure userContext is valid
-    if (!userContext || !utilDataType.isObject(userContext) || !userContext.id) {
-      logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, {
-        hookName: HookEnum.VWO_TRACK_EVENT
-      }));
-      return Promise.resolve({});
-    }
     try {
+      if (!isReady) {
+        logger.error(buildMessage(LogMessageEnum.VWO_CLIENT_MISSING, {
+          hookName: HookEnum.VWO_TRACK_EVENT
+        }));
+        return Promise.resolve({});
+      }
+      if (!eventName || !utilDataType.isString(eventName)) {
+        logger.error(LogMessageEnum.VWO_TRACK_EVENT_NAME_REQUIRED);
+        return Promise.resolve({});
+      }
+      // Ensure userContext is valid
+      if (!userContext || !utilDataType.isObject(userContext) || !userContext.id) {
+        logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, {
+          hookName: HookEnum.VWO_TRACK_EVENT
+        }));
+        return Promise.resolve({});
+      }
       return await vwoClient.trackEvent(eventName, userContext, eventProperties);
     } catch (error) {
-      logger.error(buildMessage(LogMessageEnum.VWO_TRACK_EVENT_ERROR, {
-        eventName,
-        error: error instanceof Error ? error.message : error
-      }));
+      logHookError(logger, {
+        error: error instanceof Error ? error.message : error,
+        eventName
+      }, LogMessageEnum.VWO_TRACK_EVENT_ERROR);
       return Promise.resolve({});
     }
   };
@@ -584,44 +622,58 @@ const useTrackEvent = () => {
  * @returns {ISetAttribute} Object containing setAttribute function and isReady boolean
  */
 const useSetAttribute = () => {
-  const logger = getLogger();
-  // Fetch the vwoClient and userContext from the context
-  const {
-    vwoClient,
-    userContext,
-    isReady
-  } = useVWOContext();
+  let logger;
+  let vwoClient;
+  let userContext;
+  let isReady;
+  try {
+    logger = getLogger();
+    // Fetch the vwoClient and userContext from the context
+    ({
+      vwoClient,
+      userContext,
+      isReady
+    } = useVWOContext());
+  } catch (error) {
+    logHookError(logger, {
+      error
+    }, LogMessageEnum.VWO_SET_ATTRIBUTE_ERROR);
+    return {
+      setAttribute: () => {},
+      isReady: false
+    };
+  }
   /**
    * Function to set user attributes dynamically
    * @param attributeMap - The map of attributes to set
    */
   const setAttribute = attributeMap => {
-    // Return a no-op function if vwoClient or userContext is not available
-    if (!isReady) {
-      logger.error(buildMessage(LogMessageEnum.VWO_CLIENT_MISSING, {
-        hookName: HookEnum.VWO_SET_ATTRIBUTE
-      }));
-      return;
-    }
-    if (!userContext || !utilDataType.isObject(userContext) || !userContext.id) {
-      logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, {
-        hookName: HookEnum.VWO_SET_ATTRIBUTE
-      }));
-      return;
-    }
-    if (!attributeMap || !utilDataType.isObject(attributeMap) || Object.keys(attributeMap).length === 0) {
-      logger.error(LogMessageEnum.VWO_SET_ATTRIBUTE_MAP_REQUIRED);
-      return;
-    }
     try {
+      // Return a no-op function if vwoClient or userContext is not available
+      if (!isReady) {
+        logger.error(buildMessage(LogMessageEnum.VWO_CLIENT_MISSING, {
+          hookName: HookEnum.VWO_SET_ATTRIBUTE
+        }));
+        return;
+      }
+      if (!userContext || !utilDataType.isObject(userContext) || !userContext.id) {
+        logger.error(buildMessage(LogMessageEnum.INVALID_CONTEXT, {
+          hookName: HookEnum.VWO_SET_ATTRIBUTE
+        }));
+        return;
+      }
+      if (!attributeMap || !utilDataType.isObject(attributeMap) || Object.keys(attributeMap).length === 0) {
+        logger.error(LogMessageEnum.VWO_SET_ATTRIBUTE_MAP_REQUIRED);
+        return;
+      }
       vwoClient.setAttribute(attributeMap, userContext); // Set the attributes
       logger.info(buildMessage(LogMessageEnum.VWO_SET_ATTRIBUTE_SUCCESS, {
         attributes: JSON.stringify(attributeMap)
       }));
     } catch (error) {
-      logger.error(buildMessage(LogMessageEnum.VWO_SET_ATTRIBUTE_ERROR, {
+      logHookError(logger, {
         error
-      }));
+      }, LogMessageEnum.VWO_SET_ATTRIBUTE_ERROR);
     }
   };
   return {

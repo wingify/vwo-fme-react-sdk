@@ -17,11 +17,11 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { useSetAttribute } from '../lib/useSetAttribute';
 import { getLogger } from '../lib/services/LoggerService';
-import { IVWOClient } from 'vwo-fme-node-sdk';
 import { useVWOContext } from '../lib/VWOContext';
 import { HookEnum } from '../lib/enum/HookEnum';
 import { buildMessage } from '../lib/utils/LogMessageUtil';
 import { LogMessageEnum } from '../lib/enum/LogMessageEnum';
+
 jest.mock('../lib/services/LoggerService');
 jest.mock('../lib/VWOContext');
 jest.mock('vwo-fme-node-sdk', () => ({
@@ -67,7 +67,7 @@ describe('useSetAttribute', () => {
 
     result.current.setAttribute(mockAttributes);
 
-    
+
     expect(result.current.isReady).toBe(false);
     expect(mockLogger.error).toHaveBeenCalledWith(buildMessage(LogMessageEnum.VWO_CLIENT_MISSING, { hookName: HookEnum.VWO_SET_ATTRIBUTE }));
   });

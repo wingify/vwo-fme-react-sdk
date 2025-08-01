@@ -18,7 +18,7 @@ import { createContext, useContext } from 'react';
 import { getLogger } from './services/LoggerService';
 import { IVWOClient, IVWOContextModel } from 'vwo-fme-node-sdk';
 import { LogMessageEnum } from './enum/LogMessageEnum';
-import { buildMessage } from './utils/LogMessageUtil';
+import { buildMessage, logHookError } from './utils/LogMessageUtil';
 import { HookEnum } from './enum/HookEnum';
 interface VWOContextType {
   vwoClient: IVWOClient | null;
@@ -35,8 +35,10 @@ export const VWOContext = createContext<VWOContextType>({
 });
 
 export const useVWOContext = (): VWOContextType | null => {
-  const logger = getLogger();
+  let logger;
+
   try {
+    logger = getLogger();
     // Fetch the context
     const context = useContext(VWOContext);
 
@@ -47,7 +49,7 @@ export const useVWOContext = (): VWOContextType | null => {
     }
     return context;
   } catch (error) {
-    logger.error(buildMessage(LogMessageEnum.HOOK_ERROR, { error, hookName: HookEnum.VWO_CONTEXT }));
+    logHookError(logger, { error, hookName: HookEnum.VWO_CONTEXT }, LogMessageEnum.HOOK_ERROR);
     return null;
   }
 };

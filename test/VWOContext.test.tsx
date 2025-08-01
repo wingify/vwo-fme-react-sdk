@@ -74,7 +74,7 @@ describe('useVWOContext', () => {
 
   it('should handle context with missing optional properties', () => {
     const mockVwoClient = {};
-    
+
     (useVWOContext as jest.Mock).mockReturnValue({
       vwoClient: mockVwoClient,
       isReady: true,
@@ -144,11 +144,11 @@ describe('useVWOContext', () => {
     });
 
     const { result } = renderHook(() => useVWOContext());
-    
+
     if (result.current?.setUserContext) {
       result.current.setUserContext(updatedContext);
     }
-    
+
     expect(mockSetUserContext).toHaveBeenCalledWith(updatedContext);
   });
 });
