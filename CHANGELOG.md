@@ -5,11 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2025-08-13
+
+### Changed
+
+- Added support for ES Modules(ESM) bundles.
+- Added support for sending a one-time initialization event to the server to verify correct SDK setup, as part of VWO App milestones.
+
 ## [1.6.0] - 2025-08-01
 
 ### Changed
 
-- Enhanced error handling capabilities throughout the SDK for improved reliability and debugging experience
+- Enhanced error handling capabilities throughout the SDK for improved reliability and debugging experience.
 
 ## [1.5.2] - 2025-07-25
 
