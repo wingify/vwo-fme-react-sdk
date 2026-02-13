@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-02-13
+
+### Added
+
+- Updated `vwo-fme-node-sdk` dependency version in `package.json`. Below enhancements went
+
+  - Sends usage statistics to VWO servers automatically during SDK initialization
+  - Post-segmentation variables are now automatically included as unregistered attributes, enabling post-segmentation without requiring manual setup.
+  - Added support for built-in targeting conditions, including browser version, OS version, and IP address, with advanced operator support (greaterThan, lessThan, regex).`
+  - Add support for user aliasing (will work with Gateway Service only)
+  - Exposed getUUID method that deterministically generates a UUID for a given userId and VWO accountId combination. The generated UUID is used in VWO and remains consistent for the same user-account pair.
+  - Enhanced Logging capabilities at VWO by sending vwo_sdkDebug event with additional debug properties.
+  - Introduced setSettings and getSettings methods in the Connector class, enabling persistent storage and retrieval of VWO settings through custom storage connectors.
+
+## Changed
+
+- Update schema validation to enforce required fields while allowing additional dynamic properties without validation failures
+  Fix Usage Stats bug and retry minor bug
+
 ## [1.7.0] - 2025-08-13
 
 ### Changed

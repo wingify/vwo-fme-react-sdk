@@ -36,4 +36,6 @@ export {
   Flag,
   StorageConnector,
   LogLevelEnum,
+  getUUID,
+  ISettingsData,
 } from 'vwo-fme-node-sdk';

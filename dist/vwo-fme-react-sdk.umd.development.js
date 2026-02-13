@@ -696,6 +696,12 @@
       return vwoFmeNodeSdk.StorageConnector;
     }
   });
+  Object.defineProperty(exports, 'getUUID', {
+    enumerable: true,
+    get: function () {
+      return vwoFmeNodeSdk.getUUID;
+    }
+  });
   Object.defineProperty(exports, 'init', {
     enumerable: true,
     get: function () {
