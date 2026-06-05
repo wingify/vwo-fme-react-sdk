@@ -1,27 +1,27 @@
 {
-  "name": "vwo-fme-react-sdk",
+  "name": "wingify-fme-react-sdk",
   "version": "1.50.0",
-  "description": "VWO React SDK for Feature Management and Experimentation",
-  "source": "lib/index.ts",
-  "main": "dist/vwo-fme-react-sdk.cjs.production.min.js",
-  "module": "dist/vwo-fme-react-sdk.esm.js",
-  "browser": "dist/vwo-fme-react-sdk.umd.production.min.js",
+  "description": "Wingify React SDK for Feature Management and Experimentation",
+  "source": "lib/index.wingify.ts",
+  "main": "dist/wingify-fme-react-sdk.cjs.production.min.js",
+  "module": "dist/wingify-fme-react-sdk.esm.js",
+  "browser": "dist/wingify-fme-react-sdk.umd.production.min.js",
   "exports": {
     ".": {
-      "import": "./dist/vwo-fme-react-sdk.esm.js",
-      "require": "./dist/vwo-fme-react-sdk.cjs.production.min.js",
-      "types": "./dist/index.d.ts",
+      "import": "./dist/wingify-fme-react-sdk.esm.js",
+      "require": "./dist/wingify-fme-react-sdk.cjs.production.min.js",
+      "types": "./dist/index.wingify.d.ts",
       "browser": {
-        "import": "./dist/vwo-fme-react-sdk.umd.production.min.js",
-        "require": "./dist/vwo-fme-react-sdk.umd.production.min.js"
+        "import": "./dist/wingify-fme-react-sdk.umd.production.min.js",
+        "require": "./dist/wingify-fme-react-sdk.umd.production.min.js"
       },
-      "default": "./dist/vwo-fme-react-sdk.umd.production.min.js"
+      "default": "./dist/wingify-fme-react-sdk.umd.production.min.js"
     }
   },
-  "types": "dist/index.d.ts",
+  "types": "dist/index.wingify.d.ts",
   "scripts": {
-    "build:watch": "tsdx watch",
-    "build": "tsdx build --format cjs,esm,umd",
+    "build:watch": "BRAND=wingify tsdx watch",
+    "build": "BRAND=wingify tsdx build --format cjs,esm,umd",
     "check:license": "yarn check:versions && node -e 'require(\"./scripts/check-license\")'",
     "check:versions": "node -e 'require(\"./scripts/check-versions\")'",
     "demo": "nodemon --inspect=0.0.0.0:9229 --legacy-watch --ignore node_modules demo/index.js",
@@ -57,7 +57,7 @@
     "@wingify/service-logger": "^0.1.0",
     "@wingify/util-check-license-header": "^0.1.0",
     "@wingify/util-data-type": "^0.1.0",
-    "vwo-fme-node-sdk": "^1.50.0"
+    "wingify-fme-node-sdk": "^1.50.0"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
@@ -89,9 +89,6 @@
     "jsdom": "^26.1.0",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-test-renderer": "^17.0.2",
     "rollup-plugin-banner2": "^1.3.1",
     "semver": "^7.6.0",
     "shelljs": "^0.8.5",
@@ -100,12 +97,10 @@
     "tslib": "^2.8.1",
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.8.0",
-    "wingify-fme-node-sdk": "^1.50.0"
+    "vwo-fme-node-sdk": "^1.50.0"
   },
   "lint-staged": {
-    "**/*.{ts,json,md}": [
-      "prettier --write"
-    ]
+    "**/*.{ts,json,md}": ["prettier --write"]
   },
   "engineStrict": true,
   "engines": {

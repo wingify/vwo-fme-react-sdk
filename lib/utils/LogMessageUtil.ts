@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { isFunction } from '@wingify/util-data-type';
+import { BRAND_DISPLAY_NAME, LOG_PREFIX } from '../constants/Constants';
+import { LogManager } from '@wingify/service-logger';
 
 const nargs = /\{([0-9a-zA-Z_]+)\}/g;
 
@@ -25,7 +26,12 @@ const nargs = /\{([0-9a-zA-Z_]+)\}/g;
  * @param {Record<string, any>} data - An object containing keys and values used to replace the placeholders in the template.
  * @returns {string} The constructed message with all placeholders replaced by their corresponding values from the data object.
  */
-export function buildMessage(template: string, data: Record<string, any> = {}): string {
+export function buildMessage(template: string = '', data: Record<string, any> = {}): string {
+  const payload: Record<string, any> = {
+    brand: BRAND_DISPLAY_NAME,
+    logPrefix: LOG_PREFIX,
+    ...data,
+  };
   try {
     return template.replace(nargs, (match, key, index) => {
       // Check for escaped placeholders
@@ -34,7 +40,7 @@ export function buildMessage(template: string, data: Record<string, any> = {}): 
       }
 
       // Retrieve the value from the data object
-      const value = data[key];
+      const value = payload[key];
 
       // If the key does not exist or the value is null/undefined, return an empty string
       if (value === undefined || value === null) {
@@ -50,16 +56,15 @@ export function buildMessage(template: string, data: Record<string, any> = {}): 
 }
 
 /**
- * Logs an error message using the provided logger after building the message with template data.
- *
- * @param {any} logger - The logger instance used to log the error message.
- * @param {any} obj - An object containing data used to replace placeholders in the message template.
- * @param {string} message - The message template containing placeholders to be replaced with values from the obj parameter.
+ * Logs a hook error message.
+ * @param {LogManager} logger - The logger instance.
+ * @param {Record<string, any>} data - The data object containing error details.
+ * @param {string} template - The message template.
  */
-export function logHookError(logger: any, obj: Record<string, any> = {}, message: string) {
-  try {
-    logger.error(buildMessage(message, obj));
-  } catch (error) {
-    console.error(`Error logging hook. Error: ${error}`);
+export function logHookError(logger: LogManager | undefined, data: Record<string, any>, template: string) {
+  if (logger) {
+    logger.error(buildMessage(template, data));
+  } else {
+    console.error(buildMessage(template, data));
   }
 }

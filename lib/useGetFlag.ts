@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useVWOContext } from './VWOContext';
 import { getLogger } from './services/LoggerService';
 import { isObject } from '@wingify/util-data-type';
-import { Flag, IVWOContextModel } from 'vwo-fme-node-sdk';
+import { Flag, IVWOContextModel } from './sdk';
 import { LogMessageEnum } from './enum/LogMessageEnum';
 import { buildMessage, logHookError } from './utils/LogMessageUtil';
 import { HookEnum } from './enum/HookEnum';

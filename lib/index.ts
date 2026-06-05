@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,21 @@
  */
 
 // Components
-export { VWOProvider, IVWOProvider, VWOProviderWithClient, VWOProviderWithConfig } from './VWOProvider';
+export { VWOProvider } from './VWOProvider';
+export type { IVWOProvider, VWOProviderWithClient, VWOProviderWithConfig } from './VWOProvider';
 
 // Hooks
 export { useVWOClient } from './useVWOClient';
-export { useGetFlag, IFlag } from './useGetFlag';
+export { useGetFlag } from './useGetFlag';
+export type { IFlag } from './useGetFlag';
 export { useGetFlagVariable } from './useGetFlagVariable';
 export { useGetFlagVariables } from './useGetFlagVariable';
-export { useTrackEvent, ITrackEvent } from './useTrackEvent';
-export { useSetAttribute, ISetAttribute } from './useSetAttribute';
+export { useTrackEvent } from './useTrackEvent';
+export type { ITrackEvent } from './useTrackEvent';
+export { useSetAttribute } from './useSetAttribute';
+export type { ISetAttribute } from './useSetAttribute';
 export { useVWOContext } from './VWOContext';
-export { VWOClientResult } from './useVWOClient';
+export type { VWOClientResult } from './useVWOClient';
 
 // Export init method from vwo-fme-node-sdk
 export {
@@ -38,4 +42,4 @@ export {
   LogLevelEnum,
   getUUID,
   ISettingsData,
-} from 'vwo-fme-node-sdk';
+} from './sdk';

@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Flag, IVWOContextModel } from './sdk';
-export interface IFlag {
-  flag: Flag;
-  isReady: boolean;
-}
+
 /**
- * Custom hook to retrieve a feature flag using VWO client.
- *
- * @param {string} featureKey - The key of the feature flag to retrieve.
- * @param {Object} [context] - Optional user context to use for fetching the flag.
- * @returns {FlagResult} An object containing the flag and a readiness status.
+ * Injected by @rollup/plugin-replace at build time.
+ * Value is 'vwo' for the VWO package and 'wingify' for the Wingify package.
+ * Falls back to 'vwo' in non-build environments.
  */
-export declare const useGetFlag: (featureKey: string, context?: IVWOContextModel) => IFlag;
+declare const __SDK_BRAND__: string;

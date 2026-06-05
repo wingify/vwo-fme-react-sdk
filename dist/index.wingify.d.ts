@@ -13,9 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { VWOProvider } from './VWOProvider';
-export type { IVWOProvider, VWOProviderWithClient, VWOProviderWithConfig } from './VWOProvider';
-export { useVWOClient } from './useVWOClient';
+import React, { ReactNode } from 'react';
+import { IWingifyClient, IWingifyContextModel, IWingifyOptions } from 'wingify-fme-node-sdk';
+export interface WingifyProviderWithClient {
+  client: IWingifyClient;
+  userContext?: IWingifyContextModel;
+  children: ReactNode;
+  fallbackComponent?: ReactNode;
+}
+export interface WingifyProviderWithConfig {
+  config: IWingifyOptions;
+  userContext?: IWingifyContextModel;
+  children: ReactNode;
+  fallbackComponent?: ReactNode;
+}
+export declare type IWingifyProvider = WingifyProviderWithClient | WingifyProviderWithConfig;
+export declare function WingifyProvider(props: IWingifyProvider): React.ReactElement;
+export { useVWOClient as useWingifyClient } from './useVWOClient';
 export { useGetFlag } from './useGetFlag';
 export type { IFlag } from './useGetFlag';
 export { useGetFlagVariable } from './useGetFlagVariable';
@@ -24,16 +38,19 @@ export { useTrackEvent } from './useTrackEvent';
 export type { ITrackEvent } from './useTrackEvent';
 export { useSetAttribute } from './useSetAttribute';
 export type { ISetAttribute } from './useSetAttribute';
-export { useVWOContext } from './VWOContext';
-export type { VWOClientResult } from './useVWOClient';
+export { useVWOContext as useWingifyContext } from './VWOContext';
 export {
   init,
-  IVWOContextModel,
-  IVWOClient,
-  IVWOOptions,
+  IWingifyContextModel,
+  IWingifyClient,
+  IWingifyOptions,
   Flag,
   StorageConnector,
   LogLevelEnum,
   getUUID,
   ISettingsData,
-} from './sdk';
+} from 'wingify-fme-node-sdk';
+export declare type WingifyClientResult = {
+  vwoClient: import('wingify-fme-node-sdk').IWingifyClient | null;
+  isReady: boolean;
+};

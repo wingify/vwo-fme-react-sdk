@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import React, { ReactNode } from 'react';
-import { IVWOContextModel, IVWOClient, IVWOOptions } from 'vwo-fme-node-sdk';
+import { IVWOContextModel, IVWOClient, IVWOOptions } from './sdk';
 export interface VWOProviderWithClient {
   client: IVWOClient;
   userContext?: IVWOContextModel;

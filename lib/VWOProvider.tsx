@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import React, { useEffect, useState, ReactNode, useMemo } from 'react';
-import { init, IVWOContextModel, IVWOClient, IVWOOptions } from 'vwo-fme-node-sdk';
+import { init, IVWOContextModel, IVWOClient, IVWOOptions } from './sdk';
 import { VWOContext } from './VWOContext';
 import { initLogger } from './services/LoggerService';
 import { LogMessageEnum } from './enum/LogMessageEnum';
@@ -61,7 +61,7 @@ export function VWOProvider(props: IVWOProvider): React.ReactElement {
     try {
       logger = initLogger(client?.options || config);
 
-      if(config && vwoClient) {
+      if (config && vwoClient) {
         logger.warn(LogMessageEnum.VWO_PROVIDER_CLIENT_CONFIG_WARNING);
       }
       if (vwoClient) {

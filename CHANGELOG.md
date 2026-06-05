@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.50.0] - 2026-06-05
+
+This release introduces **Wingify** as the primary SDK branding and package namespace, while keeping existing **VWO** integrations fully supported.
+
+### Added
+
+- **Wingify public API** — use `WingifyProvider`, `useWingifyClient`, `useGetFlag`, and `useTrackEvent` from the `wingify-fme-react-sdk` package as the recommended entry point for new integrations.
+
+  ```jsx
+  import { WingifyProvider, useGetFlag } from 'wingify-fme-react-sdk';
+
+  const wingifyOptions = {
+    accountId: '123456',
+    sdkKey: '32-alpha-numeric-sdk-key',
+  };
+
+  function App() {
+    return (
+      <WingifyProvider config={wingifyOptions}>
+        <FeatureComponent />
+      </WingifyProvider>
+    );
+  }
+
+  function FeatureComponent() {
+    const { isEnabled, variables } = useGetFlag('feature-key', { id: 'user-123' });
+    console.log(isEnabled, variables);
+    return isEnabled ? <div>Feature Enabled</div> : <div>Feature Disabled</div>;
+  }
+  ```
+
+- Dual-brand support: single codebase builds two NPM packages — `vwo-fme-react-sdk` (legacy) and `wingify-fme-react-sdk` (new).
+- Build scripts leveraging `tsdx` and `@rollup/plugin-alias` to produce both NPM bundles via `BRAND` env var.
+- Dual support for fetching from Node SDKs: `vwo-fme-node-sdk` for VWO and `wingify-fme-node-sdk` for Wingify.
+
+### Changed
+
+- The SDK implementation entry points now dynamically alias to Wingify or VWO.
+- Log messages and documentation have been updated to reflect Wingify branding dynamically.
+- **No breaking changes for existing integrations** — context, payload keys, and runtime behavior remain compatible with the VWO platform.
+
+### Deprecated
+
+The following **VWO** package imports from `vwo-fme-react-sdk` are deprecated but **continue to work without modification**:
+
+| Deprecated (still supported) | Use instead                     |
+| ---------------------------- | ------------------------------- |
+| `vwo-fme-react-sdk` package  | `wingify-fme-react-sdk` package |
+
+Existing code does not need to change immediately. We recommend adopting the Wingify API for new projects and migrating when convenient.
+
+**Migration tip:** Replace package imports from `vwo-fme-react-sdk` with `wingify-fme-react-sdk`, and rename components/hooks (`VWOProvider` → `WingifyProvider`, `useVWOClient` → `useWingifyClient`, `useVWOContext` → `useWingifyContext`). Method signatures and SDK behavior are unchanged.
+
 ## [1.8.0] - 2026-02-13
 
 ### Added
