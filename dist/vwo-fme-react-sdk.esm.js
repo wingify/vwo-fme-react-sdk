@@ -21,7 +21,7 @@ import { LogManager } from '@wingify/service-logger';
 import { isFunction, isObject, isString } from '@wingify/util-data-type';
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ function getLogger() {
 }
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,14 +83,14 @@ function getLogger() {
 var LogMessageEnum;
 (function (LogMessageEnum) {
   // common messages
-  LogMessageEnum["VWO_CLIENT_MISSING"] = "VWO Client is missing in {hookName} hook. Ensure VWOProvider is correctly initialized.";
+  LogMessageEnum["VWO_CLIENT_MISSING"] = "{brand} Client is missing in {hookName} hook. Ensure VWOProvider is correctly initialized.";
   LogMessageEnum["INVALID_CONTEXT"] = "Invalid user context in {hookName} hook. Ensure a valid userContext is provided.";
   LogMessageEnum["HOOK_ERROR"] = "Error in {hookName} hook: {error}";
   LogMessageEnum["INVALID_HOOK_USAGE"] = "{hookName} must be used within a VWOProvider !!";
   // VWO Provider Messages
-  LogMessageEnum["VWO_PROVIDER_CLIENT_CONFIG_WARNING"] = "VWOProvider Warning: Both `client` and `config` are provided. The `client` prop will take precedence, and the `config` props will be disregarded.";
-  LogMessageEnum["VWO_PROVIDER_CONFIG_REQUIRED"] = "VWOProvider Error: Either `client` or `config` must be provided.";
-  LogMessageEnum["VWO_SDK_INITIALIZATION_FAILED"] = "VWO-SDK Initialization failed: {error}";
+  LogMessageEnum["VWO_PROVIDER_CLIENT_CONFIG_WARNING"] = "{brand}Provider Warning: Both `client` and `config` are provided. The `client` prop will take precedence, and the `config` props will be disregarded.";
+  LogMessageEnum["VWO_PROVIDER_CONFIG_REQUIRED"] = "{brand}Provider Error: Either `client` or `config` must be provided.";
+  LogMessageEnum["VWO_SDK_INITIALIZATION_FAILED"] = "{logPrefix} Initialization failed: {error}";
   // useTrackEvent Messages
   LogMessageEnum["VWO_TRACK_EVENT_NAME_REQUIRED"] = "Event name is required for useTrackEvent hook and it should be a string";
   LogMessageEnum["VWO_TRACK_EVENT_ERROR"] = "Error tracking event - {eventName}: {error}";
@@ -99,7 +99,7 @@ var LogMessageEnum;
   LogMessageEnum["VWO_SET_ATTRIBUTE_ERROR"] = "Error setting attributes: {error}";
   LogMessageEnum["VWO_SET_ATTRIBUTE_SUCCESS"] = "User attributes set: {attributes}";
   // useGetFlag Messages
-  LogMessageEnum["VWO_NOT_READY_IN_USE_GET_FLAG"] = "VWO is not ready in useGetFlag hook";
+  LogMessageEnum["VWO_NOT_READY_IN_USE_GET_FLAG"] = "{brand} is not ready in useGetFlag hook";
   LogMessageEnum["VWO_GET_FLAG_FEATURE_KEY_REQUIRED"] = "Feature key is required for useGetFlag hook";
   LogMessageEnum["VWO_GET_FLAG_ERROR"] = "Error fetching feature flag - {featureKey}: {error}";
   // useGetFlagVariable Messages
@@ -110,7 +110,25 @@ var LogMessageEnum;
 })(LogMessageEnum || (LogMessageEnum = {}));
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+const BRAND_DISPLAY_NAME =  'VWO';
+const LOG_PREFIX =  'VWO-React-SDK';
+
+/**
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +150,12 @@ const nargs = /\{([0-9a-zA-Z_]+)\}/g;
  * @param {Record<string, any>} data - An object containing keys and values used to replace the placeholders in the template.
  * @returns {string} The constructed message with all placeholders replaced by their corresponding values from the data object.
  */
-function buildMessage(template, data = {}) {
+function buildMessage(template = '', data = {}) {
+  const payload = {
+    brand: BRAND_DISPLAY_NAME,
+    logPrefix: LOG_PREFIX,
+    ...data
+  };
   try {
     return template.replace(nargs, (match, key, index) => {
       // Check for escaped placeholders
@@ -140,7 +163,7 @@ function buildMessage(template, data = {}) {
         return key;
       }
       // Retrieve the value from the data object
-      const value = data[key];
+      const value = payload[key];
       // If the key does not exist or the value is null/undefined, return an empty string
       if (value === undefined || value === null) {
         return '';
@@ -153,22 +176,21 @@ function buildMessage(template, data = {}) {
   }
 }
 /**
- * Logs an error message using the provided logger after building the message with template data.
- *
- * @param {any} logger - The logger instance used to log the error message.
- * @param {any} obj - An object containing data used to replace placeholders in the message template.
- * @param {string} message - The message template containing placeholders to be replaced with values from the obj parameter.
+ * Logs a hook error message.
+ * @param {LogManager} logger - The logger instance.
+ * @param {Record<string, any>} data - The data object containing error details.
+ * @param {string} template - The message template.
  */
-function logHookError(logger, obj = {}, message) {
-  try {
-    logger.error(buildMessage(message, obj));
-  } catch (error) {
-    console.error(`Error logging hook. Error: ${error}`);
+function logHookError(logger, data, template) {
+  if (logger) {
+    logger.error(buildMessage(template, data));
+  } else {
+    console.error(buildMessage(template, data));
   }
 }
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,7 +216,7 @@ var HookEnum;
 })(HookEnum || (HookEnum = {}));
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -238,7 +260,7 @@ const useVWOContext = () => {
 };
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -301,7 +323,7 @@ function VWOProvider(props) {
       logHookError(logger, error, LogMessageEnum.VWO_SDK_INITIALIZATION_FAILED);
     }
   }, [memoizedConfig]); // Re-run only when config changes
-  return React.createElement(VWOContext.Provider, {
+  return /*#__PURE__*/React.createElement(VWOContext.Provider, {
     value: {
       vwoClient,
       userContext: context,
@@ -312,7 +334,7 @@ function VWOProvider(props) {
 }
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -362,7 +384,7 @@ const useVWOClient = () => {
 };
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -454,7 +476,7 @@ const useGetFlag = (featureKey, context) => {
 };
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -517,7 +539,7 @@ const useGetFlagVariable = (flag, variableKey, defaultValue) => {
 };
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -597,7 +619,7 @@ const useTrackEvent = () => {
 };
 
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

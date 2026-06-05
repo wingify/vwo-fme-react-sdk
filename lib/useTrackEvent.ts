@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import { isObject, isString } from '@wingify/util-data-type';
 import { LogMessageEnum } from './enum/LogMessageEnum';
 import { buildMessage, logHookError } from './utils/LogMessageUtil';
 import { HookEnum } from './enum/HookEnum';
-import { IVWOClient, IVWOContextModel } from 'vwo-fme-node-sdk';
+import { IVWOClient, IVWOContextModel } from './sdk';
 /**
  * Interface for the return type of useTrackEvent hook
  */

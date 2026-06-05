@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 Wingify Software Pvt. Ltd.
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IVWOClient } from 'vwo-fme-node-sdk';
+import { IVWOClient } from './sdk';
 export interface VWOClientResult {
   vwoClient: IVWOClient | null;
   isReady: boolean;

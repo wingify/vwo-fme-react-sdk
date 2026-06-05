@@ -14,7 +14,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-        react_version: [16.8.0, 16.14.0, 17.0.2, 18.2.0]
+        react_version: [16.9.0, 16.14.0, 17.0.2, 18.2.0]
         node_version: [ 18.x, 20.x, 21.x, 22.x ] # 12.x, 13.x, 14.x, 15.x, 16.x,
 
     name: Test on React ${{ matrix.react_version }} using Node.js ${{ matrix.node_version }}
@@ -46,7 +46,7 @@ jobs:
           fi
       - name: Install dependencies
         run: |
-          yarn add react@${{ matrix.react_version }} react-dom@${{ matrix.react_version }}
+          yarn add react@${{ matrix.react_version }} react-dom@${{ matrix.react_version }} react-test-renderer@${{ matrix.react_version }}
 
           # Use compatible version of @testing-library/react for React < 18
           if [[ "${{ matrix.react_version }}" =~ ^16.* || "${{ matrix.react_version }}" =~ ^17.* ]]; then

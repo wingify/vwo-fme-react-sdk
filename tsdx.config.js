@@ -1,11 +1,33 @@
 const banner2 = require('rollup-plugin-banner2');
+const alias = require('@rollup/plugin-alias');
+const replace = require('@rollup/plugin-replace');
+const path = require('path');
 
 module.exports = {
   rollup(config, options) {
-    // Remove the Terser plugin if present
-    // if (options.env === "production") {
-    //   config.plugins = config.plugins.filter(plugin => plugin.name !== "terser");
-    // }
+    const brand = process.env.BRAND || 'vwo';
+    const isWingify = brand === 'wingify';
+
+    // 1. Inject __SDK_BRAND__ at build time
+    config.plugins.unshift(
+      replace({
+        preventAssignment: true,
+        __SDK_BRAND__: JSON.stringify(brand),
+      })
+    );
+
+    // 2. For Wingify build: redirect ./sdk to ./sdk.wingify
+    if (isWingify) {
+      config.plugins.unshift(
+        alias({
+          entries: [{
+            find: /^\.\/sdk$/,
+            replacement: path.resolve(__dirname, 'lib/sdk.wingify.ts'),
+          }]
+        })
+      );
+    }
+
     config.plugins.push(
       banner2(() => {
         return `
