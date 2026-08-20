@@ -13,14 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export {
-  init,
-  IWingifyOptions as IVWOOptions,
-  IWingifyClient as IVWOClient,
-  IWingifyContextModel as IVWOContextModel,
-  Flag,
-  StorageConnector,
-  LogLevelEnum,
-  getUUID,
-  ISettingsData,
-} from 'wingify-fme-node-sdk';
+export { init, Flag, StorageConnector, LogLevelEnum, getUUID } from 'wingify-fme-node-sdk';
+export type { IWingifyOptions as IVWOOptions, IWingifyClient as IVWOClient, IWingifyContextModel as IVWOContextModel, ISettingsData, } from 'wingify-fme-node-sdk';

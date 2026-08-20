@@ -51,17 +51,8 @@ export type { ISetAttribute } from './useSetAttribute';
 export { useVWOContext as useWingifyContext } from './VWOContext';
 
 // Export init method from wingify-fme-node-sdk
-export {
-  init,
-  IWingifyContextModel,
-  IWingifyClient,
-  IWingifyOptions,
-  Flag,
-  StorageConnector,
-  LogLevelEnum,
-  getUUID,
-  ISettingsData,
-} from 'wingify-fme-node-sdk';
+export { init, Flag, StorageConnector, LogLevelEnum, getUUID } from 'wingify-fme-node-sdk';
+export type { IWingifyContextModel, IWingifyClient, IWingifyOptions, ISettingsData } from 'wingify-fme-node-sdk';
 
 // Wingify-branded result type alias
 export type WingifyClientResult = { vwoClient: import('wingify-fme-node-sdk').IWingifyClient | null; isReady: boolean };

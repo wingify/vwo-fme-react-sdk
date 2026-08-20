@@ -26,14 +26,5 @@ export { useSetAttribute } from './useSetAttribute';
 export type { ISetAttribute } from './useSetAttribute';
 export { useVWOContext } from './VWOContext';
 export type { VWOClientResult } from './useVWOClient';
-export {
-  init,
-  IVWOContextModel,
-  IVWOClient,
-  IVWOOptions,
-  Flag,
-  StorageConnector,
-  LogLevelEnum,
-  getUUID,
-  ISettingsData,
-} from './sdk';
+export { init, Flag, StorageConnector, LogLevelEnum, getUUID } from './sdk';
+export type { IVWOContextModel, IVWOClient, IVWOOptions, ISettingsData } from './sdk';

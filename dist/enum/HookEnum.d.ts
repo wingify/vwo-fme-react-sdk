@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 export declare enum HookEnum {
-  VWO_CLIENT = 'useVWOClient',
-  VWO_CONTEXT = 'useVWOContext',
-  VWO_GET_FLAG = 'useGetFlag',
-  VWO_GET_FLAG_VARIABLE = 'useGetFlagVariable',
-  VWO_GET_FLAG_VARIABLES = 'useGetFlagVariables',
-  VWO_TRACK_EVENT = 'useTrackEvent',
-  VWO_SET_ATTRIBUTE = 'useSetAttribute',
+    VWO_CLIENT = "useVWOClient",
+    VWO_CONTEXT = "useVWOContext",
+    VWO_GET_FLAG = "useGetFlag",
+    VWO_GET_FLAG_VARIABLE = "useGetFlagVariable",
+    VWO_GET_FLAG_VARIABLES = "useGetFlagVariables",
+    VWO_TRACK_EVENT = "useTrackEvent",
+    VWO_SET_ATTRIBUTE = "useSetAttribute"
 }

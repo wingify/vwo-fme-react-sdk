@@ -13,14 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export {
-  init,
-  IVWOOptions,
-  IVWOClient,
-  IVWOContextModel,
-  Flag,
-  StorageConnector,
-  LogLevelEnum,
-  getUUID,
-  ISettingsData,
-} from 'vwo-fme-node-sdk';
+export { init, Flag, StorageConnector, LogLevelEnum, getUUID } from 'vwo-fme-node-sdk';
+export type { IVWOOptions, IVWOClient, IVWOContextModel, ISettingsData } from 'vwo-fme-node-sdk';

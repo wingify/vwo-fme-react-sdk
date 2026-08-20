@@ -17,11 +17,8 @@
  * Interface for the return type of useTrackEvent hook
  */
 export interface ITrackEvent {
-  trackEvent: (
-    eventName: string,
-    eventProperties?: Record<string, string | number | boolean>,
-  ) => Promise<Record<string, boolean>>;
-  isReady: boolean;
+    trackEvent: (eventName: string, eventProperties?: Record<string, string | number | boolean>) => Promise<Record<string, boolean>>;
+    isReady: boolean;
 }
 /**
  * Hook to provide the trackEvent function for tracking events.

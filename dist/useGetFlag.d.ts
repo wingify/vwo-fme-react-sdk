@@ -15,8 +15,8 @@
  */
 import { Flag, IVWOContextModel } from './sdk';
 export interface IFlag {
-  flag: Flag;
-  isReady: boolean;
+    flag: Flag;
+    isReady: boolean;
 }
 /**
  * Custom hook to retrieve a feature flag using VWO client.

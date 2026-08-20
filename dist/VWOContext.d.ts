@@ -16,11 +16,11 @@
 /// <reference types="react" />
 import { IVWOClient, IVWOContextModel } from './sdk';
 interface VWOContextType {
-  vwoClient: IVWOClient | null;
-  userContext?: IVWOContextModel | null;
-  setUserContext?: (context: IVWOContextModel) => void;
-  isReady?: boolean;
+    vwoClient: IVWOClient | null;
+    userContext?: IVWOContextModel | null;
+    setUserContext?: (context: IVWOContextModel) => void;
+    isReady?: boolean;
 }
-export declare const VWOContext: import('react').Context<VWOContextType>;
+export declare const VWOContext: import("react").Context<VWOContextType>;
 export declare const useVWOContext: () => VWOContextType | null;
 export {};

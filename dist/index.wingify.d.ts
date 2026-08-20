@@ -16,16 +16,16 @@
 import React, { ReactNode } from 'react';
 import { IWingifyClient, IWingifyContextModel, IWingifyOptions } from 'wingify-fme-node-sdk';
 export interface WingifyProviderWithClient {
-  client: IWingifyClient;
-  userContext?: IWingifyContextModel;
-  children: ReactNode;
-  fallbackComponent?: ReactNode;
+    client: IWingifyClient;
+    userContext?: IWingifyContextModel;
+    children: ReactNode;
+    fallbackComponent?: ReactNode;
 }
 export interface WingifyProviderWithConfig {
-  config: IWingifyOptions;
-  userContext?: IWingifyContextModel;
-  children: ReactNode;
-  fallbackComponent?: ReactNode;
+    config: IWingifyOptions;
+    userContext?: IWingifyContextModel;
+    children: ReactNode;
+    fallbackComponent?: ReactNode;
 }
 export declare type IWingifyProvider = WingifyProviderWithClient | WingifyProviderWithConfig;
 export declare function WingifyProvider(props: IWingifyProvider): React.ReactElement;
@@ -39,18 +39,9 @@ export type { ITrackEvent } from './useTrackEvent';
 export { useSetAttribute } from './useSetAttribute';
 export type { ISetAttribute } from './useSetAttribute';
 export { useVWOContext as useWingifyContext } from './VWOContext';
-export {
-  init,
-  IWingifyContextModel,
-  IWingifyClient,
-  IWingifyOptions,
-  Flag,
-  StorageConnector,
-  LogLevelEnum,
-  getUUID,
-  ISettingsData,
-} from 'wingify-fme-node-sdk';
+export { init, Flag, StorageConnector, LogLevelEnum, getUUID } from 'wingify-fme-node-sdk';
+export type { IWingifyContextModel, IWingifyClient, IWingifyOptions, ISettingsData } from 'wingify-fme-node-sdk';
 export declare type WingifyClientResult = {
-  vwoClient: import('wingify-fme-node-sdk').IWingifyClient | null;
-  isReady: boolean;
+    vwoClient: import('wingify-fme-node-sdk').IWingifyClient | null;
+    isReady: boolean;
 };

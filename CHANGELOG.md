@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.55.1] - 2026-08-19
+
+### Fixed
+
+- Fix Next.js missing-export warnings caused by re-exporting type-only names (`ISettingsData`, `IWingifyContextModel`, and related interfaces) from the Node SDK.
+- Fix Wingify TypeScript types so `useGetFlag` / `flag.isEnabled()` resolve to `Flag` from `wingify-fme-node-sdk` instead of `any`.
+
 ## [1.55.0] - 2026-06-30
 
 ### Added

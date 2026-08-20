@@ -17,8 +17,8 @@
  * Interface for the return type of useSetAttribute hook
  */
 export interface ISetAttribute {
-  setAttribute: (attributeMap: Record<string, string | number | boolean>) => void;
-  isReady: boolean;
+    setAttribute: (attributeMap: Record<string, string | number | boolean>) => void;
+    isReady: boolean;
 }
 /**
  * Hook to return a function for setting user attributes.

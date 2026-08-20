@@ -32,14 +32,5 @@ export { useVWOContext } from './VWOContext';
 export type { VWOClientResult } from './useVWOClient';
 
 // Export init method from vwo-fme-node-sdk
-export {
-  init,
-  IVWOContextModel,
-  IVWOClient,
-  IVWOOptions,
-  Flag,
-  StorageConnector,
-  LogLevelEnum,
-  getUUID,
-  ISettingsData,
-} from './sdk';
+export { init, Flag, StorageConnector, LogLevelEnum, getUUID } from './sdk';
+export type { IVWOContextModel, IVWOClient, IVWOOptions, ISettingsData } from './sdk';
