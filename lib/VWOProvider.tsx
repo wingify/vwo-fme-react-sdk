@@ -21,6 +21,9 @@ import { initLogger } from './services/LoggerService';
 import { LogMessageEnum } from './enum/LogMessageEnum';
 import { logHookError } from './utils/LogMessageUtil';
 
+// React < 18 has no startTransition; run the callback synchronously there.
+const startTransition: (callback: () => void) => void = React.startTransition ?? ((callback) => callback());
+
 export interface VWOProviderWithClient {
   client: IVWOClient;
   userContext?: IVWOContextModel;
@@ -65,7 +68,7 @@ export function VWOProvider(props: IVWOProvider): React.ReactElement {
         logger.warn(LogMessageEnum.VWO_PROVIDER_CLIENT_CONFIG_WARNING);
       }
       if (vwoClient) {
-        setIsReady(true);
+        startTransition(() => setIsReady(true));
         return;
       } else if (!config) {
         logger.error(LogMessageEnum.VWO_PROVIDER_CONFIG_REQUIRED);
@@ -76,8 +79,10 @@ export function VWOProvider(props: IVWOProvider): React.ReactElement {
         if (!vwoClient && config) {
           // Initialize the VWO SDK instance if vwoClient is not already initialized
           const instance = await init(config);
-          setVwoClient(instance);
-          setIsReady(true);
+          startTransition(() => {
+            setVwoClient(instance);
+            setIsReady(true);
+          });
         }
       };
 
