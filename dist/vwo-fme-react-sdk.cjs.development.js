@@ -265,21 +265,9 @@ const useVWOContext = () => {
   }
 };
 
-/**
- * Copyright 2025-2026 Wingify Software Pvt. Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+var _React$startTransitio;
+// React < 18 has no startTransition; run the callback synchronously there.
+const startTransition = (_React$startTransitio = React__default.startTransition) != null ? _React$startTransitio : callback => callback();
 /**
  * VWOProvider component to provide VWO client and configuration context to child components.
  *
@@ -307,7 +295,7 @@ function VWOProvider(props) {
         logger.warn(LogMessageEnum.VWO_PROVIDER_CLIENT_CONFIG_WARNING);
       }
       if (vwoClient) {
-        setIsReady(true);
+        startTransition(() => setIsReady(true));
         return;
       } else if (!config) {
         logger.error(LogMessageEnum.VWO_PROVIDER_CONFIG_REQUIRED);
@@ -317,8 +305,10 @@ function VWOProvider(props) {
         if (!vwoClient && config) {
           // Initialize the VWO SDK instance if vwoClient is not already initialized
           const instance = await vwoFmeNodeSdk.init(config);
-          setVwoClient(instance);
-          setIsReady(true);
+          startTransition(() => {
+            setVwoClient(instance);
+            setIsReady(true);
+          });
         }
       };
       // Initialized only once
