@@ -16,16 +16,16 @@
 import React, { ReactNode } from 'react';
 import { IVWOContextModel, IVWOClient, IVWOOptions } from './sdk';
 export interface VWOProviderWithClient {
-    client: IVWOClient;
-    userContext?: IVWOContextModel;
-    children: ReactNode;
-    fallbackComponent?: ReactNode;
+  client: IVWOClient;
+  userContext?: IVWOContextModel;
+  children: ReactNode;
+  fallbackComponent?: ReactNode;
 }
 export interface VWOProviderWithConfig {
-    config: IVWOOptions;
-    userContext?: IVWOContextModel;
-    children: ReactNode;
-    fallbackComponent?: ReactNode;
+  config: IVWOOptions;
+  userContext?: IVWOContextModel;
+  children: ReactNode;
+  fallbackComponent?: ReactNode;
 }
 export declare type IVWOProvider = VWOProviderWithClient | VWOProviderWithConfig;
 /**

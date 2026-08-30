@@ -15,8 +15,8 @@
  */
 import { IVWOClient } from './sdk';
 export interface VWOClientResult {
-    vwoClient: IVWOClient | null;
-    isReady: boolean;
+  vwoClient: IVWOClient | null;
+  isReady: boolean;
 }
 /**
  * Returns the VWO SDK client instance

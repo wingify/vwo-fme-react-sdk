@@ -1,6 +1,6 @@
 {
   "name": "wingify-fme-react-sdk",
-  "version": "1.56.0",
+  "version": "1.62.0",
   "description": "Wingify React SDK for Feature Management and Experimentation",
   "source": "lib/index.wingify.ts",
   "main": "dist/wingify-fme-react-sdk.cjs.production.min.js",
@@ -58,7 +58,7 @@
     "@wingify/service-logger": "^0.1.0",
     "@wingify/util-check-license-header": "^0.1.0",
     "@wingify/util-data-type": "^0.1.0",
-    "wingify-fme-node-sdk": "^1.55.0"
+    "wingify-fme-node-sdk": "^1.62.0"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
@@ -98,7 +98,7 @@
     "tslib": "^2.8.1",
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.8.0",
-    "vwo-fme-node-sdk": "^1.55.0"
+    "vwo-fme-node-sdk": "^1.62.0"
   },
   "lint-staged": {
     "**/*.{ts,json,md}": ["prettier --write"]
