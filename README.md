@@ -16,6 +16,11 @@ The **VWO Feature Management and Experimentation SDK** (VWO FME React SDK) enabl
 
 Install the SDK via [**npm**](https://npmjs.com/package/vwo-fme-react-sdk) or [**yarn**](https://classic.yarnpkg.com/en/package/vwo-fme-react-sdk):
 
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
+
 ```bash
 # via npm
 npm install vwo-fme-react-sdk --save
@@ -24,9 +29,29 @@ npm install vwo-fme-react-sdk --save
 yarn add vwo-fme-react-sdk
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```bash
+# via npm
+npm install wingify-fme-react-sdk --save
+
+# via yarn
+yarn add wingify-fme-react-sdk
+```
+
+</details>
+
 ## Getting Started with VWOProvider
 
 ### Basic Implementation
+
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
 
 ```tsx
 import React from 'react';
@@ -61,9 +86,54 @@ const App = () => (
 export default App;
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```tsx
+import React from 'react';
+import { WingifyProvider, IWingifyOptions, IWingifyContextModel } from 'wingify-fme-react-sdk';
+
+const wingifyConfig: IWingifyOptions = {
+  sdkKey: '32-alpha-numeric-sdk-key', // Your Wingify SDK Key
+  accountId: '123456', // Your Wingify Account ID
+  logger: {
+    level: 'debug', // Optional log level for debugging
+  },
+};
+
+const userContext: IWingifyContextModel = {
+  id: 'unique_user_id', // Required: Unique identifier for the user
+  customVariables: { age: 25, location: 'US' }, // Optional
+  userAgent:
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36', // Optional
+  ipAddress: '1.1.1.1', // Optional
+};
+
+// Optional: Provide a fallback UI component that will be displayed while WingifyProvider initializes.
+// This is useful for showing a loading state or placeholder content during SDK initialization.
+const fallbackComponent = <div>Initializing Wingify...</div>;
+
+const App = () => (
+  <WingifyProvider config={wingifyConfig} userContext={userContext} fallbackComponent={fallbackComponent}>
+    <YourComponent />
+  </WingifyProvider>
+);
+
+export default App;
+```
+
+</details>
+
 ### Using Pre-initialized VWO Client
 
 If you have already initialized a VWO client in your application, you can pass it directly to the VWOProvider:
+
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
 
 ```typescript
 import React, { useEffect, useState } from 'react';
@@ -110,13 +180,70 @@ const App = () => {
 export default App;
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```typescript
+import React, { useEffect, useState } from 'react';
+import { WingifyProvider, IWingifyOptions, IWingifyClient, IWingifyContextModel, init } from 'wingify-fme-react-sdk';
+
+const wingifyConfig: IWingifyOptions = {
+  sdkKey: '32-alpha-numeric-sdk-key', // Replace with your real SDK key
+  accountId: '123456', // Replace with your real account ID
+  logger: {
+    level: 'debug',
+  },
+};
+
+const userContext: IWingifyContextModel = {
+  id: 'unique_user_id',
+  customVariables: { age: 25, location: 'US' },
+  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+  ipAddress: '1.1.1.1',
+};
+
+const fallbackComponent = <div>Initializing Wingify...</div>;
+
+const App = () => {
+  const [wingifyClient, setWingifyClient] = useState<IWingifyClient | null>(null);
+
+  useEffect(() => {
+    const initializeWingify = async () => {
+      const client = await init(wingifyConfig);
+      setWingifyClient(client);
+    };
+
+    initializeWingify();
+  }, []);
+
+  if (!wingifyClient) return fallbackComponent;
+
+  return (
+    <WingifyProvider client={wingifyClient} userContext={userContext}>
+      <YourComponent />
+    </WingifyProvider>
+  );
+};
+
+export default App;
+```
+
+</details>
+
 ### Basic Implementation without User Context
 
 If you don't have user details available while initialising the VWOProvider you can pass it later in `useGetFlag` hook.
 
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
+
 ```typescript
 import React from 'react';
-import { VWOProvider, IVWOOptions, IVWOContextModel } from 'vwo-fme-react-sdk';
+import { VWOProvider, IVWOOptions } from 'vwo-fme-react-sdk';
 
 const vwoConfig: IVWOOptions = {
   sdkKey: '32-alpha-numeric-sdk-key', // Your VWO SDK Key
@@ -140,11 +267,44 @@ export default App;
 
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```typescript
+import React from 'react';
+import { WingifyProvider, IWingifyOptions } from 'wingify-fme-react-sdk';
+
+const wingifyConfig: IWingifyOptions = {
+  sdkKey: '32-alpha-numeric-sdk-key', // Your Wingify SDK Key
+  accountId: '123456', // Your Wingify Account ID
+  logger: {
+    level: 'debug', // Optional log level for debugging
+  },
+};
+
+// Optional: Provide a fallback UI component that will be displayed while WingifyProvider initializes.
+// This is useful for showing a loading state or placeholder content during SDK initialization.
+const fallbackComponent = <div>Initializing Wingify...</div>;
+
+const App = () => (
+  <WingifyProvider config={wingifyConfig} fallbackComponent={fallbackComponent}>
+    <YourComponent />
+  </WingifyProvider>
+);
+
+export default App;
+
+```
+
+</details>
+
 To learn more about on how to pass context in `useGetFlag` hook, [click here](#basic-feature-flagging).
 
 ## Advanced Configuration Options
 
-To customize the SDK further, additional parameters can be passed to the `VWOProvider` component using `config` parameter. Here’s a table describing each option:
+To customize the SDK further, additional parameters can be passed to the `VWOProvider` component using `config` parameter. Here's a table describing each option:
 
 | **Parameter**  | **Description**                                                                                                                                             | **Required** | **Type** | **Example**                     |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -------- | ------------------------------- |
@@ -167,7 +327,8 @@ The VWO FME React SDK offers a comprehensive suite of React hooks that enable se
 | `useGetFlagVariables` | Get all variables associated with a feature flag               | [Learn how to access all flag variables](#basic-feature-flagging)   |
 | `useTrackEvent`       | Track custom events and user interactions                      | [Learn how to track user events](#custom-event-tracking)            |
 | `useSetAttribute`     | Set user attributes for targeting and segmentation             | [Learn how to set user attributes](#pushing-attributes)             |
-| `useVWOClient`        | Access the underlying VWO client instance                      | [Learn how to access VWO client](#vwo-client-usage)                 |
+| `useVWOClient`        | Access the underlying VWO client instance (VWO brand)          | [Learn how to access VWO client](#vwo-client-usage)                 |
+| `useWingifyClient`    | Access the underlying Wingify client instance (Wingify brand)  | [Learn how to access VWO client](#vwo-client-usage)                 |
 
 ### User Context
 
@@ -186,6 +347,11 @@ The following table explains all the parameters in the `context` object:
 
 #### Example
 
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
+
 ```typescript
 import { IVWOContextModel } from 'vwo-fme-react-sdk';
 
@@ -197,6 +363,25 @@ const userContext: IVWOContextModel = {
   ipAddress: '1.1.1.1',
 };
 ```
+
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```typescript
+import { IWingifyContextModel } from 'wingify-fme-react-sdk';
+
+const userContext: IWingifyContextModel = {
+  id: 'unique_user_id',
+  customVariables: { age: 25, location: 'US' },
+  userAgent:
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+  ipAddress: '1.1.1.1',
+};
+```
+
+</details>
 
 ### VWO Client Usage
 
@@ -210,6 +395,11 @@ The `useVWOClient` hook provides direct access to the underlying VWO client inst
 | `isReady`   | Boolean indicating whether the VWO SDK client has initialized successfully | `boolean`    |
 
 #### Example Usage
+
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
 
 ```typescript
 import React, { useEffect, useState } from 'react';
@@ -257,6 +447,59 @@ const FeatureFlagComponent = () => {
 export default FeatureFlagComponent;
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```typescript
+import React, { useEffect, useState } from 'react';
+import { useWingifyClient, IWingifyContextModel } from 'wingify-fme-react-sdk';
+
+const FeatureFlagComponent = () => {
+  const [isFeatureEnabled, setIsFeatureEnabled] = useState(false);
+  const { vwoClient, isReady } = useWingifyClient();
+
+  useEffect(() => {
+    const checkFeature = async () => {
+      if (!isReady) {
+        console.log('Wingify Client not available');
+        return;
+      }
+
+      // Define user context (could be dynamic)
+      const userContext: IWingifyContextModel = { id: 'unique_user_id' };
+
+      try {
+        // Fetch the feature flag using getFlag method
+        const flag = await vwoClient.getFlag('feature_key', userContext);
+
+        // Check if the feature is enabled
+        setIsFeatureEnabled(flag.isEnabled());
+      } catch (error) {
+        console.error('Error checking feature flag:', error);
+      }
+    };
+
+    checkFeature();
+  }, [vwoClient, isReady]);
+
+  return (
+    <div>
+      {isFeatureEnabled ? (
+        <p>The feature is enabled!</p>
+      ) : (
+        <p>The feature is not enabled.</p>
+      )}
+    </div>
+  );
+};
+
+export default FeatureFlagComponent;
+```
+
+</details>
+
 ### Basic Feature Flagging
 
 Feature Flags serve as the foundation for all testing, personalization, and rollout rules within FME.
@@ -285,6 +528,11 @@ Use the `isReady` flag to determine when the feature flag data has been fully in
 
 Example Usage if `userContext` was already provided in `VWOProvider`.
 
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
+
 ```typescript
 import React from 'react';
 import { useGetFlag, useGetFlagVariable, useGetFlagVariables } from 'vwo-fme-react-sdk'; // Import hooks
@@ -300,7 +548,7 @@ const YourComponent = () => {
 
   // Use the flag object returned by useGetFlag to retrieve a specific variable
   const variableValue = useGetFlagVariable(flag, "variable-value", "default-value");
-  const allVariable = useGetFlagVariable(flag);
+  const allVariables = useGetFlagVariables(flag);
 
   return (
     <div>
@@ -313,7 +561,47 @@ const YourComponent = () => {
 export default YourComponent;
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```typescript
+import React from 'react';
+import { useGetFlag, useGetFlagVariable, useGetFlagVariables } from 'wingify-fme-react-sdk'; // Import hooks
+
+const YourComponent = () => {
+  // Retrieve the flag using the feature key
+  const { flag, isReady } = useGetFlag('feature_key');
+
+  // Or, pass userContext, if not provided at the time of using WingifyProvider or you want to use updated user context
+  // const { flag, isReady } = useGetFlag('feature_key', userContext);
+
+  if (!isReady) { return <div>Default/Zero state</div>; }
+
+  // Use the flag object returned by useGetFlag to retrieve a specific variable
+  const variableValue = useGetFlagVariable(flag, "variable-value", "default-value");
+  const allVariables = useGetFlagVariables(flag);
+
+  return (
+    <div>
+      {/* Display the feature flag variable value */}
+      <p>Feature Flag Variable Value: {variableValue}</p>
+    </div>
+  );
+};
+
+export default YourComponent;
+```
+
+</details>
+
 Example Usage if `userContext` was not provided in `VWOProvider`.
+
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
 
 ```typescript
 import React from 'react';
@@ -346,6 +634,44 @@ const YourComponent = () => {
 export default YourComponent;
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```typescript
+import React from 'react';
+import { useGetFlag, useGetFlagVariable, IWingifyContextModel } from 'wingify-fme-react-sdk'; // Import hooks
+
+const YourComponent = () => {
+
+  const userContext: IWingifyContextModel = {
+    id: 'unique_user_id',
+    customVariables: { age: 25, location: 'US' },
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    ipAddress: '1.1.1.1',
+  };
+  // Retrieve the flag using the feature key
+  const { flag, isReady } = useGetFlag('feature_key', userContext);
+
+  if (!isReady) { return <div>Default/Zero state</div>; }
+
+  // Use the flag object returned by useGetFlag to retrieve a specific variable
+  const variableValue = useGetFlagVariable(flag, "variable-value", "default-value");
+
+  return (
+    <div>
+      {/* Display the feature flag variable value */}
+      <p>Feature Flag Variable Value: {variableValue}</p>
+    </div>
+  );
+};
+
+export default YourComponent;
+```
+
+</details>
+
 ### Custom Event Tracking
 
 Feature flags can be enhanced with connected metrics to track key performance indicators (KPIs) for your features. These metrics help measure the effectiveness of your testing rules by comparing control versus variation performance, and evaluate the impact of personalization and rollout campaigns. Use the `useTrackEvent` hook to track custom events like conversions, user interactions, and other important metrics.
@@ -359,6 +685,11 @@ The `useTrackEvent` hook returns an object containing a `trackEvent` function an
 
 Example usage:
 
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
+
 ```javascript
 import { useTrackEvent } from 'vwo-fme-react-sdk';
 
@@ -368,6 +699,23 @@ function YourComponent() {
   return <button onClick={() => trackEvent('button_clicked')}>Click Me</button>;
 }
 ```
+
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```javascript
+import { useTrackEvent } from 'wingify-fme-react-sdk';
+
+function YourComponent() {
+  const { trackEvent, isReady } = useTrackEvent();
+
+  return <button onClick={() => trackEvent('button_clicked')}>Click Me</button>;
+}
+```
+
+</details>
 
 See [Tracking Conversions](https://developers.vwo.com/v2/docs/fme-react-metrics-tracking#usage) documentation for more information.
 
@@ -382,6 +730,11 @@ The `useSetAttribute` hook returns an object containing a `setAttribute` functio
 
 Example usage:
 
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
+
 ```javascript
 import { useSetAttribute } from 'vwo-fme-react-sdk';
 
@@ -392,11 +745,33 @@ function YourComponent() {
 }
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```javascript
+import { useSetAttribute } from 'wingify-fme-react-sdk';
+
+function YourComponent() {
+  const { setAttribute, isReady } = useSetAttribute();
+
+  return <button onClick={() => setAttribute({ age: 25, location: 'US' })}>Click Me</button>;
+}
+```
+
+</details>
+
 See [Pushing Attributes](https://developers.vwo.com/v2/docs/fme-react-attributes#usage) documentation for additional information.
 
 ### Polling Interval Adjustment
 
 The `pollInterval` is an optional parameter that allows the SDK to automatically fetch and update settings from the VWO server at specified intervals. Setting this parameter ensures your application always uses the latest configuration.
+
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
 
 ```typescript
 import { VWOProvider, IVWOOptions, IVWOContextModel } from 'vwo-fme-react-sdk';
@@ -415,6 +790,30 @@ const App = () => (
 );
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```typescript
+import { WingifyProvider, IWingifyOptions, IWingifyContextModel } from 'wingify-fme-react-sdk';
+const wingifyConfig: IWingifyOptions = {
+  sdkKey: '32-alpha-numeric-sdk-key', // Your Wingify SDK Key
+  accountId: '123456', // Your Wingify Account ID
+  pollInterval: 60000, // Time interval for fetching updates from Wingify servers (in milliseconds)
+};
+
+const userContext: IWingifyContextModel = { id: 'unique_user_id' };
+
+const App = () => (
+  <WingifyProvider config={wingifyConfig} userContext={userContext}>
+    <YourComponent />
+  </WingifyProvider>
+);
+```
+
+</details>
+
 ### Storage
 
 The SDK operates in a stateless mode by default, meaning each `useGetFlag` hook triggers a fresh evaluation of the flag against the current user context.
@@ -429,10 +828,15 @@ Key benefits of implementing storage:
 
 The storage mechanism ensures that once a decision is made for a user, it remains consistent even if campaign settings are modified in the VWO Application. This is particularly useful for maintaining a stable user experience during A/B tests and feature rollouts.
 
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
+
 ```typescript
 import { VWOProvider, IVWOOptions, IVWOContextModel, StorageConnector } from 'vwo-fme-react-sdk';
 
-class StorageConnector extends StorageConnector {
+class MyStorageConnector extends StorageConnector {
   constructor() {
     super();
   }
@@ -463,7 +867,7 @@ const vwoConfig: IVWOOptions = {
   logger: {
     level: 'debug', // Optional log level for debugging
   },
-  storage: StorageConnector,
+  storage: MyStorageConnector,
 };
 
 const userContext: IVWOContextModel = {id: 'unique_user_id'};
@@ -477,6 +881,61 @@ const App = () => (
 export default App;
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```typescript
+import { WingifyProvider, IWingifyOptions, IWingifyContextModel, StorageConnector } from 'wingify-fme-react-sdk';
+
+class MyStorageConnector extends StorageConnector {
+  constructor() {
+    super();
+  }
+
+  /**
+   * Get data from storage
+   * @param {string} featureKey
+   * @param {string} userId
+   * @returns {Promise<any>}
+   */
+  async get(featureKey, userId) {
+    // return await data (based on featureKey and userId)
+  }
+
+  /**
+   * Set data in storage
+   * @param {object} data
+   */
+  async set(data) {
+    // Set data corresponding to a featureKey and user ID
+    // Use data.featureKey and data.userId to store the above data for a specific feature and a user
+  }
+}
+
+const wingifyConfig: IWingifyOptions = {
+  sdkKey: '32-alpha-numeric-sdk-key', // Your Wingify SDK Key
+  accountId: '123456', // Your Wingify Account ID
+  logger: {
+    level: 'debug', // Optional log level for debugging
+  },
+  storage: MyStorageConnector,
+};
+
+const userContext: IWingifyContextModel = {id: 'unique_user_id'};
+
+const App = () => (
+  <WingifyProvider config={wingifyConfig} userContext={userContext}>
+    <YourComponent />
+  </WingifyProvider>
+);
+
+export default App;
+```
+
+</details>
+
 ### Logger
 
 VWO by default logs all `ERROR` level messages to your server console.
@@ -488,6 +947,11 @@ To gain more control over VWO's logging behaviour, you can use the `logger` para
 | `prefix`      | Custom prefix for log messages         | No           | String   | `'CUSTOM LOG PREFIX'` |
 
 #### Example 1: Set log level to control verbosity of logs
+
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
 
 ```typescript
 import { VWOProvider, IVWOOptions, IVWOContextModel } from 'vwo-fme-react-sdk';
@@ -510,7 +974,40 @@ const App = () => (
 export default App;
 ```
 
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```typescript
+import { WingifyProvider, IWingifyOptions, IWingifyContextModel } from 'wingify-fme-react-sdk';
+const wingifyConfig: IWingifyOptions = {
+  sdkKey: '32-alpha-numeric-sdk-key', // SDK Key
+  accountId: '123456', // Wingify Account ID
+  logger: {
+    level: 'debug',
+  },
+};
+
+const userContext: IWingifyContextModel = {id: 'unique_user_id'};
+
+const App = () => (
+  <WingifyProvider config={wingifyConfig} userContext={userContext}>
+    <YourComponent />
+  </WingifyProvider>
+);
+
+export default App;
+```
+
+</details>
+
 #### Example 2: Add custom prefix to log messages for easier identification
+
+If SDK version less than 1.50.0, use the VWO snippet. If SDK version 1.50.0 or later, we recommend switching to the Wingify snippet
+
+<details>
+<summary>VWO (SDK version &lt; 1.50.0)</summary>
 
 ```typescript
 import { VWOProvider, IVWOOptions, IVWOContextModel } from 'vwo-fme-react-sdk';
@@ -533,6 +1030,35 @@ const App = () => (
 
 export default App;
 ```
+
+</details>
+
+<details>
+<summary>Wingify (SDK version &gt;= 1.50.0) — recommended</summary>
+
+```typescript
+import { WingifyProvider, IWingifyOptions, IWingifyContextModel } from 'wingify-fme-react-sdk';
+const wingifyConfig: IWingifyOptions = {
+  sdkKey: '32-alpha-numeric-sdk-key', // SDK Key
+  accountId: '123456', // Wingify Account ID
+  logger: {
+    level: 'debug',
+    prefix: 'CUSTOM LOG PREFIX', // custom logger prefix
+  },
+};
+
+const userContext: IWingifyContextModel = {id: 'unique_user_id'};
+
+const App = () => (
+  <WingifyProvider config={wingifyConfig} userContext={userContext}>
+    <YourComponent />
+  </WingifyProvider>
+);
+
+export default App;
+```
+
+</details>
 
 ### Version History
 
