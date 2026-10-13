@@ -9539,10 +9539,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vwo-fme-node-sdk@^1.55.0:
-  version "1.60.0"
-  resolved "https://registry.yarnpkg.com/vwo-fme-node-sdk/-/vwo-fme-node-sdk-1.60.0.tgz#364104de507202f564aff0470ac7a6e129bc207e"
-  integrity sha512-nkAyKX5zOR+0g1MLP77umyM5Se/tWtpjJJx2Genz3LSCyny5Xf8x9hP3c74LfBoug1Z+OQHlLN8SMyEFeOfJWQ==
+vwo-fme-node-sdk@^1.62.0:
+  version "1.70.2"
+  resolved "https://registry.yarnpkg.com/vwo-fme-node-sdk/-/vwo-fme-node-sdk-1.70.2.tgz#1ded1d1a1527db0e8ea3f6f96c3053badba691df"
+  integrity sha512-feWVpET5O/ROTbpuCzf7DPuqnS50sWTZZ/UuiUektvb0U3w4PA9SL+br1crMFmkR3+bbS9RN+M6E1yDid2plHA==
   dependencies:
     murmurhash "^2.0.1"
     superstruct "^0.14.x"
@@ -9743,10 +9743,10 @@ which@^2.0.1, which@^2.0.2:
   dependencies:
     isexe "^2.0.0"
 
-wingify-fme-node-sdk@^1.55.0:
-  version "1.60.0"
-  resolved "https://registry.yarnpkg.com/wingify-fme-node-sdk/-/wingify-fme-node-sdk-1.60.0.tgz#c844a02ece6a882d1c7a3c97351bc8a59b593a93"
-  integrity sha512-pWNkuO7yPjRMxP6KwhBIXq0VhgpFocW7smwJw6U9b/lJojeaNkWqLThlzlohIpnjwYWKJQypzKXjFmZ7hBJ/DA==
+wingify-fme-node-sdk@^1.62.0:
+  version "1.70.2"
+  resolved "https://registry.yarnpkg.com/wingify-fme-node-sdk/-/wingify-fme-node-sdk-1.70.2.tgz#4c16e5e563d1847cc8d9a9e9255a3f78d11eb3ca"
+  integrity sha512-8dy+I6GNl2XLX+aTFV8feLTE09uzSQkOQy1K13AjgCSg9N92SawRaFpYq9xPCtgOl55N6x9P4fe8LZ8BBv3HHQ==
   dependencies:
     murmurhash "^2.0.1"
     superstruct "^0.14.x"
