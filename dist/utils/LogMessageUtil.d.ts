@@ -1,4 +1,4 @@
-import { LogManager } from '@wingify/service-logger';
+import { LogManager } from './WingifyPackages';
 /**
  * Constructs a message by replacing placeholders in a template with corresponding values from a data object.
  *

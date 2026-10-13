@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { isFunction } from '@wingify/util-data-type';
 import { BRAND_DISPLAY_NAME, LOG_PREFIX } from '../constants/Constants';
-import { LogManager } from '@wingify/service-logger';
+import { isFunction, LogManager } from './WingifyPackages';
 
 const nargs = /\{([0-9a-zA-Z_]+)\}/g;
 

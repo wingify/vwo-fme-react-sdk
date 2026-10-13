@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.70.0] - 2026-10-13
+
+### Fixed
+
+- Fixed a crash (`does not provide an export named 'LogManager'`) when the SDK is loaded by Node's native ESM loader, as in SSR setups like React Router v7 / Vite.
+- Fixed the custom `logger` config not being applied to the React SDK's own log messages; they were going to the default console logger instead.
+
+### Changed
+
+- added Force Users support for Rollout and Personalize rules and init details in the SDK usage stats event.
+
 ## [1.62.0] - 2026-08-27
 
 ### Changed

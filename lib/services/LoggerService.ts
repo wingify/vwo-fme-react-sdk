@@ -17,23 +17,30 @@
 /**
  * logger.ts - Global Logger Singleton
  */
-import { LogManager } from '@wingify/service-logger';
+import { LogManager } from '../utils/WingifyPackages';
 
 let logger: LogManager | null = null;
+let isLoggerConfigApplied = false;
 
 /**
  * Initializes the global logger instance.
  * This function should be called inside `VWOProvider` before logging is used anywhere in the application.
  *
+ * A default logger created earlier by `getLogger` is replaced by the first logger config that is provided;
+ * later configs are ignored.
+ *
  * @param {object} config - The logger configuration object.
  * @param {object} config.logger - Optional logging configuration (e.g., log level, transports).
- * @returns {void} No return value; initializes the logger instance.
+ * @returns {LogManager} The global logger instance.
  */
 export function initLogger(config: any) {
-  if (!logger) {
-    logger = new LogManager(config?.logger || {});
+  if (!isLoggerConfigApplied && config?.logger) {
+    // `isAlwaysNewInstance` is needed because LogManager is a singleton that otherwise returns the default logger.
+    // The config is copied because LogManager writes its defaults into the object it receives.
+    logger = new LogManager({ ...config.logger, isAlwaysNewInstance: true });
+    isLoggerConfigApplied = true;
   }
-  return logger;
+  return getLogger();
 }
 
 /**

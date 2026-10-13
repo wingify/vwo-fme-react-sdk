@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { isObject } from '@wingify/util-data-type';
+import { isObject } from './utils/WingifyPackages';
 import { getLogger } from './services/LoggerService';
 import { Flag } from './sdk';
 import { LogMessageEnum } from './enum/LogMessageEnum';

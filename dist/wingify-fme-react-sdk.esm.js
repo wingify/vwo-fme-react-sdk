@@ -15,10 +15,35 @@
  * limitations under the License.
  */
 import React, { useContext, createContext, useState, useMemo, useEffect, useCallback } from 'react';
-import { init } from 'vwo-fme-node-sdk';
-export { Flag, LogLevelEnum, StorageConnector, getUUID, init } from 'vwo-fme-node-sdk';
-import { LogManager } from '@wingify/service-logger';
-import { isFunction, isObject, isString } from '@wingify/util-data-type';
+import { init } from 'wingify-fme-node-sdk';
+export { Flag, LogLevelEnum, StorageConnector, getUUID, init } from 'wingify-fme-node-sdk';
+import * as serviceLogger from '@wingify/service-logger';
+import * as utilDataType from '@wingify/util-data-type';
+
+/**
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+function resolveExports(module, probeKey) {
+  return module && module[probeKey] ? module : module.default;
+}
+const serviceLoggerExports = /*#__PURE__*/resolveExports(serviceLogger, 'LogManager');
+const utilDataTypeExports = /*#__PURE__*/resolveExports(utilDataType, 'isObject');
+const LogManager = serviceLoggerExports.LogManager;
+const isFunction = utilDataTypeExports.isFunction;
+const isObject = utilDataTypeExports.isObject;
+const isString = utilDataTypeExports.isString;
 
 /**
  * Copyright 2025-2026 Wingify Software Pvt. Ltd.
@@ -36,19 +61,29 @@ import { isFunction, isObject, isString } from '@wingify/util-data-type';
  * limitations under the License.
  */
 let logger = null;
+let isLoggerConfigApplied = false;
 /**
  * Initializes the global logger instance.
  * This function should be called inside `VWOProvider` before logging is used anywhere in the application.
  *
+ * A default logger created earlier by `getLogger` is replaced by the first logger config that is provided;
+ * later configs are ignored.
+ *
  * @param {object} config - The logger configuration object.
  * @param {object} config.logger - Optional logging configuration (e.g., log level, transports).
- * @returns {void} No return value; initializes the logger instance.
+ * @returns {LogManager} The global logger instance.
  */
 function initLogger(config) {
-  if (!logger) {
-    logger = new LogManager((config == null ? void 0 : config.logger) || {});
+  if (!isLoggerConfigApplied && config != null && config.logger) {
+    // `isAlwaysNewInstance` is needed because LogManager is a singleton that otherwise returns the default logger.
+    // The config is copied because LogManager writes its defaults into the object it receives.
+    logger = new LogManager({
+      ...config.logger,
+      isAlwaysNewInstance: true
+    });
+    isLoggerConfigApplied = true;
   }
-  return logger;
+  return getLogger();
 }
 /**
  * Retrieves the global logger instance.
@@ -124,8 +159,8 @@ var LogMessageEnum;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const BRAND_DISPLAY_NAME =  'VWO';
-const LOG_PREFIX =  'VWO-React-SDK';
+const BRAND_DISPLAY_NAME =  'Wingify' ;
+const LOG_PREFIX =  'Wingify-React-SDK' ;
 
 /**
  * Copyright 2025-2026 Wingify Software Pvt. Ltd.
@@ -281,6 +316,12 @@ function VWOProvider(props) {
   const [isReady, setIsReady] = useState(false);
   const memoizedConfig = useMemo(() => config || (client == null ? void 0 : client.options), []);
   let logger;
+  // Runs during render, not in an effect: children's effects (where hooks log) run before this component's effects.
+  try {
+    logger = initLogger((client == null ? void 0 : client.options) || config);
+  } catch (error) {
+    // Reported by the effect below, which retries the same call.
+  }
   // Initialize the VWO SDK instance only once when the component mounts or if config is updated
   useEffect(() => {
     try {
@@ -688,5 +729,24 @@ const useSetAttribute = () => {
   };
 };
 
-export { VWOProvider, useGetFlag, useGetFlagVariable, useGetFlagVariables, useSetAttribute, useTrackEvent, useVWOClient, useVWOContext };
-//# sourceMappingURL=vwo-fme-react-sdk.esm.js.map
+/**
+ * Copyright 2025-2026 Wingify Software Pvt. Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+function WingifyProvider(props) {
+  return /*#__PURE__*/React.createElement(VWOProvider, props);
+}
+
+export { WingifyProvider, useGetFlag, useGetFlagVariable, useGetFlagVariables, useSetAttribute, useTrackEvent, useVWOClient as useWingifyClient, useVWOContext as useWingifyContext };
+//# sourceMappingURL=wingify-fme-react-sdk.esm.js.map

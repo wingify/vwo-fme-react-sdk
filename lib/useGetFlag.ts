@@ -17,7 +17,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useVWOContext } from './VWOContext';
 import { getLogger } from './services/LoggerService';
-import { isObject } from '@wingify/util-data-type';
+import { isObject } from './utils/WingifyPackages';
 import { Flag, IVWOContextModel } from './sdk';
 import { LogMessageEnum } from './enum/LogMessageEnum';
 import { buildMessage, logHookError } from './utils/LogMessageUtil';

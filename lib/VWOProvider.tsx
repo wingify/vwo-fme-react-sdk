@@ -59,6 +59,12 @@ export function VWOProvider(props: IVWOProvider): React.ReactElement {
   const memoizedConfig = useMemo(() => config || client?.options, []);
 
   let logger;
+  // Runs during render, not in an effect: children's effects (where hooks log) run before this component's effects.
+  try {
+    logger = initLogger(client?.options || config);
+  } catch (error) {
+    // Reported by the effect below, which retries the same call.
+  }
   // Initialize the VWO SDK instance only once when the component mounts or if config is updated
   useEffect(() => {
     try {
